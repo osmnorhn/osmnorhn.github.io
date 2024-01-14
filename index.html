@@ -1,56 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Osman Orhan</title>
     <style>
         body {
             text-align: center;
-            font: 20px Helvetica, sans-serif;
+            font: 16px Helvetica, sans-serif;
             color: #333;
+            padding: 10px;
+            margin: 0;
         }
 
         h1 {
-            font-size: 50px;
+            font-size: 2em;
         }
 
         article {
-            display: block;
             text-align: left;
-            width: 650px;
             margin: 0 auto;
         }
 
         a {
             color: #dc8100;
             text-decoration: none;
+            font-weight: bold;
         }
 
         a:hover {
             color: #333;
-            text-decoration: none;
+        }
+
+        p {
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            margin-top: 20px;
+        }
+
+        footer {
+            margin-top: 20px;
+        }
+
+        /* Responsive Styles */
+        @media only screen and (min-width: 600px) {
+            body {
+                font-size: 18px;
+            }
+        }
+
+        @media only screen and (min-width: 900px) {
+            body {
+                font-size: 20px;
+            }
+
+            article {
+                width: 70%;
+            }
         }
     </style>
 </head>
-
 <body>
     <article>
         <h1>Osman Orhan</h1>
         <div>
             <p>Copenhagen, Capital Region, Denmark</p>
-            <p>Email: <a href="mailto:osmnorhn@gmail.com">osmnorhn@gmail.com</a> | Phone: +45 71 66 84 24 | </p>
+            <p>Email: <a href="mailto:osmnorhn@gmail.com">osmnorhn@gmail.com</a> | Phone: +45 71 66 84 24</p>
             <p>LinkedIn: <a href="https://www.linkedin.com/in/osmnorhn/">linkedin.com/in/osmnorhn</a></p>
             <p>Github: <a href="https://www.github.com/osmnorhn/">github.com/osmnorhn</a></p>
+            <p>Resume: <a href="Resume-Osman-Orhan.pdf" target="_blank" download>Download CV</a></p>
+            
             <h2>Summary</h2>
-            <p>I am a Software Developer passionate about modern technology stack, software and system architecture design.</p>
+            <p>
+                Backend software developer with a background in Computer Engineering. Passionate about modern technology stacks, software, and system architecture design. Experienced in leading roles with proficiency in full-stack development skills.
+            </p>
+
             <h2>Skills</h2>
             <ul>
                 <li>Microservices, Event Driven Architecture, Domain Driven Design</li>
                 <li>Object Oriented Programming, Defensive Programming</li>
                 <li>Good understanding of Design Patterns, Well familiar with Agile Software Development</li>
-                <li>C# (.NET 7, ASP.NET, WebApi, WCF, WebForms, Entity Framework)</li>
+                <li>C# (.NET, ASP.NET, WebApi, WCF, WebForms, Entity Framework)</li>
                 <li>SQL & Database Design (MySQL, MS SQL Server, PostgreSQL & PostGIS)</li>
                 <li>NoSQL (MongoDB, Neo4j, Redis)</li>
                 <li>Restful services and GraphQL</li>
@@ -60,5 +92,9 @@
             </ul>
         </div>
     </article>
+
+    <footer>
+        <p>&copy; 2024 Osman Orhan. All rights reserved.</p>
+    </footer>
 </body>
 </html>
