@@ -97,6 +97,7 @@
         header h1 { font-size: 26px; margin: 0; letter-spacing: -.01em; }
         header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
 
+        .plot-head { margin: 0 0 8px; font-size: 13.5px; color: var(--muted); }
         .day-title { font-size: 14px; font-weight: 500; color: var(--muted); margin: 18px 0 0; }
         section { padding: 28px 0 0; }
         .endpoint { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
@@ -153,7 +154,7 @@
     <div class="layout">
         <aside>
             <h2>// scans</h2>
-            <nav aria-label="Scan runs"><ul><li><a href="#2026-10-31T201422Z" data-day="2026-10-31T201422Z">2026-10-31 21:14</a></li><li><a href="#2026-10-31T200434Z" data-day="2026-10-31T200434Z">2026-10-31 21:04</a></li><li><a href="#2026-10-31T194853Z" data-day="2026-10-31T194853Z">2026-10-31 20:48</a></li></ul></nav>
+            <nav aria-label="Scan runs"><ul><li><a href="#plots" data-day="plots">plot history</a></li><li><a href="#2026-10-31T201422Z" data-day="2026-10-31T201422Z">2026-10-31 21:14</a></li><li><a href="#2026-10-31T200434Z" data-day="2026-10-31T200434Z">2026-10-31 21:04</a></li><li><a href="#2026-10-31T194853Z" data-day="2026-10-31T194853Z">2026-10-31 20:48</a></li></ul></nav>
         </aside>
         <main>
             <header>
@@ -232,6 +233,21 @@
                     <figcaption>Asking price vs model price. Green points sit below the model, red above, ✕ are red-flagged listings that are not ranked.</figcaption>
                 </figure>
                 <p class="note">Model price is an out-of-fold ElasticNetCV estimate. Listing descriptions are truncated to ~500 characters, so read the full listing before acting.</p>
+            </article>
+            <article class="day" id="d-plots" data-day="plots" hidden>
+                <h2 class="day-title">plot history · 3 runs, newest first</h2>
+                <figure>
+                    <figcaption class="plot-head"><a href="#2026-10-31T201422Z">2026-10-31 21:14</a> · unchanged since 2026-10-31 21:04</figcaption>
+                    <img src="2026-10-31T201422Z.png" alt="Scatter plots of asking price against model price in the 2026-10-31 21:14 scan." width="2100" height="975" loading="lazy" />
+                </figure>
+                <figure>
+                    <figcaption class="plot-head"><a href="#2026-10-31T200434Z">2026-10-31 21:04</a> · <span class="g">updated</span> since 2026-10-31 20:48</figcaption>
+                    <img src="2026-10-31T200434Z.png" alt="Scatter plots of asking price against model price in the 2026-10-31 21:04 scan." width="2100" height="975" loading="lazy" />
+                </figure>
+                <figure>
+                    <figcaption class="plot-head"><a href="#2026-10-31T194853Z">2026-10-31 20:48</a> · first plot</figcaption>
+                    <img src="2026-10-31T194853Z.png" alt="Scatter plots of asking price against model price in the 2026-10-31 20:48 scan." width="2100" height="975" loading="lazy" />
+                </figure>
             </article>
         </main>
     </div>
