@@ -3,98 +3,535 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Osman Orhan</title>
+    <title>Osman Orhan · Backend Engineer & Tech Lead</title>
+    <meta name="description" content="Osman Orhan is a Copenhagen-based backend engineer and tech lead with 10+ years of experience in .NET, distributed systems, cloud and software architecture." />
+    <meta name="author" content="Osman Orhan" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Osman Orhan · Backend Engineer & Tech Lead" />
+    <meta property="og:description" content="Backend engineer and tech lead in Copenhagen. Microservices, event-driven architecture, .NET, Azure and Kubernetes." />
+    <meta property="og:url" content="https://osmnorhn.github.io/" />
+    <meta name="color-scheme" content="dark light" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230d1117'/%3E%3Ctext x='10' y='42' font-family='Menlo,monospace' font-weight='700' font-size='30' fill='%233fb950'%3E%3E_%3C/text%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
     <style>
+        :root {
+            --bg: #0d1117;
+            --panel: #161b22;
+            --panel-2: #1c2230;
+            --border: #30363d;
+            --text: #e6edf3;
+            --muted: #8b949e;
+            --green: #3fb950;
+            --blue: #79c0ff;
+            --purple: #d2a8ff;
+            --orange: #ffa657;
+            --string: #a5d6ff;
+            --red: #ff7b72;
+            --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            --max: 980px;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --bg: #f6f8fa;
+                --panel: #ffffff;
+                --panel-2: #f0f3f6;
+                --border: #d0d7de;
+                --text: #1f2328;
+                --muted: #59636e;
+                --green: #1a7f37;
+                --blue: #0550ae;
+                --purple: #8250df;
+                --orange: #bc4c00;
+                --string: #0a3069;
+                --red: #cf222e;
+            }
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
         body {
-            text-align: center;
-            font: 16px Helvetica, sans-serif;
-            color: #333;
-            padding: 10px;
             margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font: 400 15px/1.7 var(--mono);
+            -webkit-font-smoothing: antialiased;
         }
 
-        h1 {
-            font-size: 2em;
+        a { color: var(--blue); text-decoration: none; }
+        a:hover { text-decoration: underline; text-underline-offset: 3px; }
+        a:focus-visible, summary:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; border-radius: 4px; }
+
+        .container { max-width: var(--max); margin: 0 auto; padding: 0 20px; }
+
+        /* Syntax colors */
+        .k { color: var(--red); }
+        .s { color: var(--string); }
+        .n { color: var(--blue); }
+        .f { color: var(--purple); }
+        .c { color: var(--muted); }
+        .o { color: var(--orange); }
+        .g { color: var(--green); }
+
+        /* Top bar */
+        header.bar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: color-mix(in srgb, var(--bg) 88%, transparent);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
+        header.bar .container { display: flex; align-items: center; justify-content: space-between; height: 56px; gap: 16px; }
+        .host { color: var(--text); font-weight: 700; white-space: nowrap; }
+        .host:hover { text-decoration: none; }
+        .host .g { font-weight: 700; }
+        nav ul { display: flex; gap: 18px; list-style: none; margin: 0; padding: 0; }
+        nav a { color: var(--muted); font-size: 13.5px; }
+        nav a:hover { color: var(--green); text-decoration: none; }
+
+        /* Terminal window */
+        .terminal {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, .25);
+        }
+        .titlebar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            background: var(--panel-2);
+            border-bottom: 1px solid var(--border);
+            font-size: 12.5px;
+            color: var(--muted);
+        }
+        .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+        .dot.r { background: #ff5f56; } .dot.y { background: #ffbd2e; } .dot.gr { background: #27c93f; }
+        .titlebar .title { margin-left: 8px; }
+        .screen { padding: 22px 24px 26px; overflow-x: auto; }
+        .screen pre { margin: 0; font: inherit; white-space: pre-wrap; word-break: break-word; }
+        .prompt::before { content: "$ "; color: var(--green); font-weight: 700; }
+        .out { color: var(--muted); }
+        .cursor {
+            display: inline-block;
+            width: 9px;
+            height: 1.1em;
+            vertical-align: text-bottom;
+            background: var(--green);
+            animation: blink 1.1s steps(1) infinite;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* Hero */
+        .hero { padding: 72px 0 56px; }
+        .hero h1 {
+            font-size: clamp(34px, 6vw, 56px);
+            line-height: 1.1;
+            letter-spacing: -.03em;
+            margin: 0 0 12px;
+        }
+        .hero .role { color: var(--green); font-size: clamp(15px, 2.2vw, 18px); margin: 0 0 28px; }
+        .hero .terminal { margin-bottom: 28px; }
+
+        .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 14px;
+            border-radius: 6px;
+            font: 500 13.5px var(--mono);
+            border: 1px solid var(--border);
+            color: var(--text);
+            background: var(--panel);
+            transition: border-color .15s ease, color .15s ease;
+        }
+        .btn:hover { text-decoration: none; border-color: var(--green); color: var(--green); }
+        .btn.primary { background: var(--green); border-color: var(--green); color: #0d1117; font-weight: 700; }
+        .btn.primary:hover { color: #0d1117; filter: brightness(1.08); }
+        .btn .verb { color: var(--orange); font-weight: 700; }
+        .btn.primary .verb { color: inherit; }
+
+        /* Sections as API endpoints */
+        section { padding: 56px 0; scroll-margin-top: 56px; }
+        .endpoint {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px 14px;
+            margin-bottom: 22px;
+        }
+        .endpoint h2 { font-size: 20px; margin: 0; letter-spacing: -.01em; font-weight: 700; }
+        .method {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: color-mix(in srgb, var(--green) 18%, transparent);
+            color: var(--green);
+        }
+        .method.post { background: color-mix(in srgb, var(--orange) 18%, transparent); color: var(--orange); }
+        .status { font-size: 12.5px; color: var(--muted); margin-left: auto; }
+        .status b { color: var(--green); font-weight: 500; }
+
+        /* Experience as a log */
+        .log { list-style: none; margin: 0; padding: 0; border-left: 1px dashed var(--border); }
+        .entry { position: relative; padding: 0 0 30px 26px; }
+        .entry:last-child { padding-bottom: 0; }
+        .entry::before {
+            content: "";
+            position: absolute;
+            left: -5px;
+            top: 8px;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--bg);
+            border: 2px solid var(--muted);
+        }
+        .entry.current::before { border-color: var(--green); background: var(--green); box-shadow: 0 0 0 4px color-mix(in srgb, var(--green) 25%, transparent); }
+        .entry .ts { font-size: 12.5px; color: var(--muted); }
+        .entry .lvl { color: var(--blue); font-weight: 700; }
+        .entry.current .lvl { color: var(--green); }
+        .entry h3 { font-size: 16px; margin: 2px 0 0; }
+        .entry h3 .at { color: var(--purple); font-weight: 500; }
+        .entry p { margin: 6px 0 0; color: var(--muted); max-width: 760px; font-size: 14px; }
+        .deps { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; padding: 0; list-style: none; }
+        .deps li {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background: var(--panel);
+            color: var(--string);
         }
 
-        article {
-            text-align: left;
-            margin: 0 auto;
+        details.earlier { margin-top: 26px; }
+        details.earlier summary {
+            cursor: pointer;
+            list-style: none;
+            color: var(--muted);
+            font-size: 13.5px;
+            margin-bottom: 22px;
         }
+        details.earlier summary::-webkit-details-marker { display: none; }
+        details.earlier summary::before { content: "▸ "; color: var(--green); }
+        details[open].earlier summary::before { content: "▾ "; }
+        details.earlier summary:hover { color: var(--text); }
 
-        a {
-            color: #dc8100;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        a:hover {
-            color: #333;
-        }
-
-        p {
-            margin-bottom: 10px;
-        }
-
-        h2 {
-            margin-top: 20px;
-        }
+        /* Code panels */
+        .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+        .file { margin: 0; }
+        .file .screen { font-size: 13.5px; padding: 18px 20px; }
 
         footer {
-            margin-top: 20px;
+            border-top: 1px solid var(--border);
+            padding: 24px 0 36px;
+            color: var(--muted);
+            font-size: 12.5px;
+        }
+        footer .container { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+
+        @media (max-width: 760px) {
+            nav ul { display: none; }
+            .hero { padding: 48px 0 40px; }
+            .grid { grid-template-columns: minmax(0, 1fr); }
+            .screen { padding: 18px 16px 20px; }
+            section { padding: 44px 0; }
+            .status { margin-left: 0; width: 100%; }
         }
 
-        /* Responsive Styles */
-        @media only screen and (min-width: 600px) {
-            body {
-                font-size: 18px;
-            }
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            .cursor { animation: none; }
         }
 
-        @media only screen and (min-width: 900px) {
-            body {
-                font-size: 20px;
-            }
-
-            article {
-                width: 70%;
-            }
+        @media print {
+            header.bar, .actions, footer, .cursor { display: none; }
+            details.earlier > *:not(summary) { display: block; }
         }
     </style>
 </head>
 <body>
-    <article>
-        <h1>Osman Orhan</h1>
-        <div>
-            <p>Copenhagen, Capital Region, Denmark</p>
-            <p>Email: <a href="mailto:osmnorhn@gmail.com">osmnorhn@gmail.com</a> | Phone: +45 71 66 84 24</p>
-            <p>LinkedIn: <a href="https://www.linkedin.com/in/osmnorhn/">linkedin.com/in/osmnorhn</a></p>
-            <p>Github: <a href="https://www.github.com/osmnorhn/">github.com/osmnorhn</a></p>
-            <p>Resume: <a href="Resume-Osman-Orhan.pdf" target="_blank" download>Download CV</a></p>
-            
-            <h2>Summary</h2>
-            <p>
-                Backend software developer with a background in Computer Engineering based on more than 10 years of industrial experience. Passionate about modern technology stack, software, and system architecture design. Experienced in lead roles with proficiency in full-stack development skills.
-            </p>
-
-            <h2>Skills</h2>
-            <ul>
-                <li>Microservices, Event Driven Architecture, Domain Driven Design</li>
-                <li>Object Oriented Programming, Defensive Programming</li>
-                <li>Good understanding of Design Patterns, Well familiar with Agile Software Development</li>
-                <li>C# (.NET, ASP.NET, WebApi, WCF, WebForms, Entity Framework)</li>
-                <li>SQL & Database Design (MySQL, MS SQL Server, PostgreSQL & PostGIS)</li>
-                <li>NoSQL (MongoDB, Neo4j, Redis)</li>
-                <li>Restful services and GraphQL</li>
-                <li>Good understanding of DevOps practices</li>
-                <li>Azure, Azure DevOps, Bitbucket Pipelines</li>
-                <li>Docker, Kubernetes, Helm</li>
-            </ul>
+    <header class="bar">
+        <div class="container">
+            <a class="host" href="#top"><span class="g">osman@orhan</span>:<span class="n">~</span>$</a>
+            <nav aria-label="Main">
+                <ul>
+                    <li><a href="#about">/about</a></li>
+                    <li><a href="#experience">/experience</a></li>
+                    <li><a href="#stack">/stack</a></li>
+                    <li><a href="#education">/education</a></li>
+                    <li><a href="#contact">/contact</a></li>
+                </ul>
+            </nav>
         </div>
-    </article>
+    </header>
+
+    <main id="top" class="container">
+        <div class="hero">
+            <h1>Osman Orhan</h1>
+            <p class="role">// backend engineer · tech lead · software architect</p>
+
+            <div class="terminal" role="region" aria-label="Profile summary">
+                <div class="titlebar">
+                    <span class="dot r"></span><span class="dot y"></span><span class="dot gr"></span>
+                    <span class="title">osman@orhan: ~ — zsh</span>
+                </div>
+                <div class="screen">
+<pre><span class="prompt">whoami</span>
+<span class="out">osman-orhan — backend engineer &amp; tech lead, Copenhagen</span>
+
+<span class="prompt">cat profile.json</span>
+{
+  <span class="n">"name"</span>: <span class="s">"Osman Orhan"</span>,
+  <span class="n">"location"</span>: <span class="s">"Copenhagen, DK"</span>,
+  <span class="n">"experience_years"</span>: <span class="o">10</span>,
+  <span class="n">"focus"</span>: [<span class="s">"distributed systems"</span>, <span class="s">"event-driven architecture"</span>, <span class="s">"DDD"</span>],
+  <span class="n">"runtime"</span>: [<span class="s">".NET"</span>, <span class="s">"Azure"</span>, <span class="s">"Kubernetes"</span>],
+  <span class="n">"certified"</span>: <span class="s">"iSAQB CPSA (Software Architecture)"</span>
+}
+
+<span class="prompt"></span><span class="cursor" aria-hidden="true"></span></pre>
+                </div>
+            </div>
+
+            <div class="actions">
+                <a class="btn primary" href="mailto:osmnorhn@gmail.com"><span class="verb">POST</span> /contact</a>
+                <a class="btn" href="Resume-Osman-Orhan.pdf" download><span class="verb">GET</span> /cv.pdf</a>
+                <a class="btn" href="https://github.com/osmnorhn" target="_blank" rel="noopener"><span class="verb">GET</span> github.com/osmnorhn</a>
+                <a class="btn" href="https://www.linkedin.com/in/osmnorhn/" target="_blank" rel="noopener"><span class="verb">GET</span> linkedin.com/in/osmnorhn</a>
+            </div>
+        </div>
+
+        <section id="about">
+            <div class="endpoint">
+                <span class="method">GET</span><h2>/about</h2>
+                <span class="status"><b>200 OK</b> · text/plain</span>
+            </div>
+            <div class="terminal">
+                <div class="screen">
+<pre><span class="c">/**
+ * Backend-focused software engineer with a Computer Engineering degree
+ * and 10+ years in production, across test automation &amp; RPA,
+ * industrial automation, biotech and healthcare.
+ *
+ * I like modern tech stacks and clean system architecture, and I take
+ * products end to end: design → implementation → tests → production.
+ *
+ * As a tech lead I combine architecture and mentoring with hands-on
+ * work on proofs of concept and production code.
+ */</span>
+<span class="k">public sealed class</span> <span class="f">Osman</span> : <span class="f">IBackendEngineer</span>, <span class="f">ITechLead</span> { }</pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="experience">
+            <div class="endpoint">
+                <span class="method">GET</span><h2>/experience</h2>
+                <span class="status"><b>200 OK</b> · tail -f career.log</span>
+            </div>
+            <ol class="log">
+                <li class="entry current">
+                    <div class="ts">2022-02 → now <span class="lvl">[RUNNING]</span></div>
+                    <h3>Tech Lead <span class="at">@ Leapwork</span></h3>
+                    <p>
+                        Shaping Leapwork's SaaS, cloud and web-based no-code test automation / RPA platform. I guide and mentor the team technically,
+                        lead architectural design toward delivery goals, and write proofs of concept and production code.
+                    </p>
+                </li>
+                <li class="entry">
+                    <div class="ts">2020-10 → 2022-02 <span class="lvl">[INFO]</span></div>
+                    <h3>Senior Software Engineer <span class="at">@ Leapwork</span></h3>
+                    <p>Built the cloud backend for a no-code test automation product that uses a visual language to automate testing and repetitive work.</p>
+                    <ul class="deps">
+                        <li>C#/.NET</li><li>microservices</li><li>NATS</li><li>GraphQL</li><li>REST</li><li>SQL Server</li><li>Redis</li>
+                        <li>Azure</li><li>Kubernetes</li><li>Helm</li><li>Prometheus</li><li>Grafana Loki</li>
+                    </ul>
+                </li>
+                <li class="entry">
+                    <div class="ts">2020-04 → 2020-09 <span class="lvl">[INFO]</span></div>
+                    <h3>Fullstack Developer <span class="at">@ ZS | Intomics</span></h3>
+                    <p>Designed the software architecture and databases for biotech web applications, and built the backend and frontend.</p>
+                    <ul class="deps">
+                        <li>Python</li><li>Falcon</li><li>PostgreSQL</li><li>Neo4j</li><li>Docker Compose</li><li>Vue.js</li><li>TDD</li>
+                    </ul>
+                </li>
+                <li class="entry">
+                    <div class="ts">2017-06 → 2020-03 <span class="lvl">[INFO]</span></div>
+                    <h3>Experienced Software Development Engineer <span class="at">@ Siemens</span></h3>
+                    <p>
+                        Built C# automation software that generates thousands of industrial automation projects, cutting months of manual work to hours.
+                        Automated VM provisioning and management, spread jobs across VMs behind a load balancer, and set up CI/CD pipelines.
+                    </p>
+                    <ul class="deps">
+                        <li>C#</li><li>VMware ESXi</li><li>load balancing</li><li>CI/CD</li><li>test automation</li><li>TIA Portal</li>
+                    </ul>
+                </li>
+                <li class="entry">
+                    <div class="ts">2014-07 → 2017-06 <span class="lvl">[INFO]</span></div>
+                    <h3>Software Engineer <span class="at">@ MİA Teknoloji</span></h3>
+                    <p>.NET developer on healthcare management and biometric systems, building web, mobile and Windows applications end to end.</p>
+                    <ul class="deps">
+                        <li>C#/.NET</li><li>ASP.NET Web API</li><li>WCF</li><li>Entity Framework</li><li>SQL Server</li>
+                        <li>PostgreSQL/PostGIS</li><li>MongoDB</li><li>SOAP</li><li>DDD</li><li>AOP</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <details class="earlier">
+                <summary>git log --before=2014-07 <span class="c"># earlier roles</span></summary>
+                <ol class="log">
+                    <li class="entry">
+                        <div class="ts">2014-02 → 2014-06 <span class="lvl">[INFO]</span></div>
+                        <h3>Fullstack Software Developer, part-time <span class="at">@ ARF Bilgi Teknolojileri</span></h3>
+                        <p>ASP.NET Web API with Entity Framework Code First on the backend; HTML5 and Knockout.js on the frontend.</p>
+                    </li>
+                    <li class="entry">
+                        <div class="ts">2013-06 → 2013-11 <span class="lvl">[INFO]</span></div>
+                        <h3>Intern Software Developer <span class="at">@ OdakGIS</span></h3>
+                        <p>GIS projects with GeoTools, Java, .NET, PostgreSQL and SQL Server, syncing spatial data between web services and local databases.</p>
+                    </li>
+                    <li class="entry">
+                        <div class="ts">2012-06 → 2012-07 <span class="lvl">[INFO]</span></div>
+                        <h3>Intern Software Developer <span class="at">@ Bilişim Aktörleri</span></h3>
+                        <p>C#, unit testing and Umbraco CMS development.</p>
+                    </li>
+                </ol>
+            </details>
+        </section>
+
+        <section id="stack">
+            <div class="endpoint">
+                <span class="method">GET</span><h2>/stack</h2>
+                <span class="status"><b>200 OK</b> · application/yaml</span>
+            </div>
+            <div class="grid">
+                <figure class="terminal file">
+                    <div class="titlebar"><span class="dot r"></span><span class="dot y"></span><span class="dot gr"></span><span class="title">backend.yaml</span></div>
+                    <div class="screen">
+<pre><span class="n">architecture</span>:
+  - <span class="s">microservices</span>
+  - <span class="s">event-driven architecture</span>
+  - <span class="s">domain-driven design</span>
+  - <span class="s">design patterns</span>
+<span class="n">languages</span>:
+  <span class="n">primary</span>: <span class="s">C# / .NET</span>
+  <span class="n">also</span>: [<span class="s">Python</span>, <span class="s">Java</span>, <span class="s">TypeScript</span>]
+<span class="n">frameworks</span>:
+  [<span class="s">ASP.NET</span>, <span class="s">Web API</span>, <span class="s">Entity Framework</span>, <span class="s">WCF</span>]
+<span class="n">apis</span>: [<span class="s">REST</span>, <span class="s">GraphQL</span>, <span class="s">SOAP</span>]
+<span class="n">messaging</span>: [<span class="s">NATS</span>]</pre>
+                    </div>
+                </figure>
+                <figure class="terminal file">
+                    <div class="titlebar"><span class="dot r"></span><span class="dot y"></span><span class="dot gr"></span><span class="title">data.yaml</span></div>
+                    <div class="screen">
+<pre><span class="n">relational</span>:
+  - <span class="s">MS SQL Server</span>
+  - <span class="s">PostgreSQL + PostGIS</span>
+  - <span class="s">MySQL</span>
+<span class="n">nosql</span>:
+  <span class="n">document</span>: <span class="s">MongoDB</span>
+  <span class="n">graph</span>: <span class="s">Neo4j</span>
+  <span class="n">cache</span>: <span class="s">Redis</span>
+<span class="n">skills</span>:
+  - <span class="s">schema &amp; database design</span>
+  - <span class="s">spatial data (GIS)</span></pre>
+                    </div>
+                </figure>
+                <figure class="terminal file">
+                    <div class="titlebar"><span class="dot r"></span><span class="dot y"></span><span class="dot gr"></span><span class="title">infra.yaml</span></div>
+                    <div class="screen">
+<pre><span class="n">cloud</span>: <span class="s">Azure</span>
+<span class="n">containers</span>: [<span class="s">Docker</span>, <span class="s">Kubernetes</span>, <span class="s">Helm</span>]
+<span class="n">ci_cd</span>: [<span class="s">Azure DevOps</span>, <span class="s">Bitbucket Pipelines</span>]
+<span class="n">observability</span>:
+  <span class="n">metrics</span>: <span class="s">Prometheus</span>
+  <span class="n">logs</span>: <span class="s">Grafana Loki</span>
+<span class="n">virtualization</span>: <span class="s">VMware ESXi</span></pre>
+                    </div>
+                </figure>
+                <figure class="terminal file">
+                    <div class="titlebar"><span class="dot r"></span><span class="dot y"></span><span class="dot gr"></span><span class="title">practices.yaml</span></div>
+                    <div class="screen">
+<pre><span class="n">engineering</span>:
+  - <span class="s">object-oriented programming</span>
+  - <span class="s">defensive programming</span>
+  - <span class="s">test-driven development</span>
+  - <span class="s">test automation</span>
+<span class="n">process</span>: [<span class="s">Agile</span>, <span class="s">Kanban</span>]
+<span class="n">frontend</span>: <span class="c"># when the job needs it</span>
+  [<span class="s">React</span>, <span class="s">Angular</span>, <span class="s">Vue.js</span>, <span class="s">Node.js</span>]</pre>
+                    </div>
+                </figure>
+            </div>
+        </section>
+
+        <section id="education">
+            <div class="endpoint">
+                <span class="method">GET</span><h2>/education</h2>
+                <span class="status"><b>200 OK</b> · application/json</span>
+            </div>
+            <div class="terminal">
+                <div class="screen">
+<pre>{
+  <span class="n">"degree"</span>: {
+    <span class="n">"title"</span>: <span class="s">"B.Sc. Computer Engineering"</span>,
+    <span class="n">"school"</span>: <span class="s">"Ankara University"</span>,
+    <span class="n">"years"</span>: [<span class="o">2009</span>, <span class="o">2014</span>],
+    <span class="n">"topics"</span>: [<span class="s">"data structures &amp; algorithms"</span>, <span class="s">"database systems"</span>, <span class="s">"OOP"</span>,
+               <span class="s">"software engineering"</span>, <span class="s">"operating systems"</span>, <span class="s">"data mining"</span>],
+    <span class="n">"thesis"</span>: <span class="s">"Text search algorithms in a Java desktop application"</span>
+  },
+  <span class="n">"certifications"</span>: [
+    { <span class="n">"name"</span>: <span class="s">"Certified Professional for Software Architecture"</span>, <span class="n">"issuer"</span>: <span class="s">"iSAQB"</span> },
+    { <span class="n">"name"</span>: <span class="s">"Programming in HTML5 with JavaScript and CSS3"</span>, <span class="n">"issuer"</span>: <span class="s">"Microsoft"</span> }
+  ]
+}</pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact">
+            <div class="endpoint">
+                <span class="method post">POST</span><h2>/contact</h2>
+                <span class="status"><b>202 Accepted</b> · message/rfc822</span>
+            </div>
+            <div class="terminal">
+                <div class="screen">
+<pre><span class="prompt">curl -X POST <a href="mailto:osmnorhn@gmail.com">mailto:osmnorhn@gmail.com</a> \</span>
+    -H <span class="s">"Content-Type: application/json"</span> \
+    -d <span class="s">'{"subject": "Hello Osman"}'</span>
+
+<span class="c"># other channels</span>
+<span class="n">linkedin</span>  <a href="https://www.linkedin.com/in/osmnorhn/" target="_blank" rel="noopener">linkedin.com/in/osmnorhn</a>
+<span class="n">github</span>    <a href="https://github.com/osmnorhn" target="_blank" rel="noopener">github.com/osmnorhn</a>
+<span class="n">phone</span>     <a href="tel:+4571668424">+45 71 66 84 24</a>
+<span class="n">cv</span>        <a href="Resume-Osman-Orhan.pdf" download>Resume-Osman-Orhan.pdf</a></pre>
+                </div>
+            </div>
+        </section>
+    </main>
 
     <footer>
-        <p>&copy; 2024 Osman Orhan. All rights reserved.</p>
+        <div class="container">
+            <span>&copy; <span id="year">2026</span> Osman Orhan · Copenhagen, DK</span>
+            <span><span class="g">●</span> all systems operational · uptime since 2012</span>
+        </div>
     </footer>
+
+    <script>
+        document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
 </body>
 </html>
