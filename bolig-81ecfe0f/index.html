@@ -124,9 +124,26 @@
             overflow-x: auto;
         }
         table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-        th, td { padding: 9px 14px; text-align: left; white-space: nowrap; }
+        th, td { padding: 9px 12px; text-align: left; white-space: nowrap; }
         th { background: var(--panel-2); color: var(--muted); font-weight: 500; border-bottom: 1px solid var(--border); }
         tbody tr + tr td { border-top: 1px solid var(--border); }
+        th[data-sort] { padding: 0; }
+        .sort {
+            all: unset;
+            box-sizing: border-box;
+            display: block;
+            width: 100%;
+            padding: 9px 12px;
+            cursor: pointer;
+            text-align: inherit;
+        }
+        .sort:hover { color: var(--text); }
+        .sort:focus-visible { outline: 2px solid var(--green); outline-offset: -2px; }
+        .sort:hover::after { content: "↕"; opacity: .5; }
+        .sort::after { margin-left: 3px; }
+        th[aria-sort="ascending"] .sort, th[aria-sort="descending"] .sort { color: var(--text); }
+        th[aria-sort="ascending"] .sort::after { content: "↑"; opacity: 1; }
+        th[aria-sort="descending"] .sort::after { content: "↓"; opacity: 1; }
         .num { text-align: right; font-variant-numeric: tabular-nums; }
 
         .filters {
@@ -185,7 +202,7 @@
             .filters label:has(#f-area) { flex-basis: 100%; }
             #f-area { min-width: 0; width: 100%; }
             .filters input { width: 96px; }
-            th, td { padding: 8px 10px; }
+            th, td, .sort { padding: 8px 10px; }
         }
     </style>
 </head>
@@ -207,10 +224,10 @@
                 <label>neighborhood
                     <select id="f-area"><option value="">all</option></select>
                 </label>
-                <label>asking ≥ (M DKK)
+                <label>asking ≥ (M or DKK)
                     <input id="f-min" type="number" min="0" step="0.5" inputmode="decimal" placeholder="0" />
                 </label>
-                <label>asking ≤ (M DKK)
+                <label>asking ≤ (M or DKK)
                     <input id="f-max" type="number" min="0" step="0.5" inputmode="decimal" placeholder="any" />
                 </label>
                 <label>price change
@@ -244,7 +261,7 @@
                     <div class="endpoint"><span class="method">GET</span><h2>/ejerlejlighed</h2><span class="status">2817 listings, 19 red-flagged listings excluded</span></div>
                     <p class="sub">Condos (ejerlejlighed)</p>
                     <div class="table-wrap"><table>
-                        <thead><tr><th>#</th><th>Address</th><th class="num">m²</th><th class="num">Rooms</th><th class="num">Asking</th><th class="num">Model</th><th class="num">Discount</th><th class="num" title="Asking-price change since listing; arrow: since the previous scan">Price Δ</th></tr></thead>
+                        <thead><tr><th>#</th><th data-sort="address"><button type="button" class="sort">Address</button></th><th class="num" data-sort="m2"><button type="button" class="sort">m²</button></th><th class="num" data-sort="rooms"><button type="button" class="sort">Rooms</button></th><th class="num" data-sort="asking"><button type="button" class="sort">Asking</button></th><th class="num" data-sort="model"><button type="button" class="sort">Model</button></th><th class="num" data-sort="discount"><button type="button" class="sort">Discount</button></th><th class="num" data-sort="change" title="Asking-price change since listing; arrow: since the previous scan"><button type="button" class="sort">Price Δ</button></th></tr></thead>
                         <tbody></tbody>
                     </table></div>
                     <button type="button" class="more" hidden>show more</button>
@@ -253,7 +270,7 @@
                     <div class="endpoint"><span class="method">GET</span><h2>/villa</h2><span class="status">1468 listings, 7 red-flagged listings excluded</span></div>
                     <p class="sub">Detached houses (villa)</p>
                     <div class="table-wrap"><table>
-                        <thead><tr><th>#</th><th>Address</th><th class="num">m²</th><th class="num">Rooms</th><th class="num">Asking</th><th class="num">Model</th><th class="num">Discount</th><th class="num" title="Asking-price change since listing; arrow: since the previous scan">Price Δ</th></tr></thead>
+                        <thead><tr><th>#</th><th data-sort="address"><button type="button" class="sort">Address</button></th><th class="num" data-sort="m2"><button type="button" class="sort">m²</button></th><th class="num" data-sort="rooms"><button type="button" class="sort">Rooms</button></th><th class="num" data-sort="asking"><button type="button" class="sort">Asking</button></th><th class="num" data-sort="model"><button type="button" class="sort">Model</button></th><th class="num" data-sort="discount"><button type="button" class="sort">Discount</button></th><th class="num" data-sort="change" title="Asking-price change since listing; arrow: since the previous scan"><button type="button" class="sort">Price Δ</button></th></tr></thead>
                         <tbody></tbody>
                     </table></div>
                     <button type="button" class="more" hidden>show more</button>
@@ -262,7 +279,7 @@
                     <div class="endpoint"><span class="method">GET</span><h2>/raekkehus</h2><span class="status">445 listings, 1 red-flagged listings excluded</span></div>
                     <p class="sub">Terraced houses (rækkehus)</p>
                     <div class="table-wrap"><table>
-                        <thead><tr><th>#</th><th>Address</th><th class="num">m²</th><th class="num">Rooms</th><th class="num">Asking</th><th class="num">Model</th><th class="num">Discount</th><th class="num" title="Asking-price change since listing; arrow: since the previous scan">Price Δ</th></tr></thead>
+                        <thead><tr><th>#</th><th data-sort="address"><button type="button" class="sort">Address</button></th><th class="num" data-sort="m2"><button type="button" class="sort">m²</button></th><th class="num" data-sort="rooms"><button type="button" class="sort">Rooms</button></th><th class="num" data-sort="asking"><button type="button" class="sort">Asking</button></th><th class="num" data-sort="model"><button type="button" class="sort">Model</button></th><th class="num" data-sort="discount"><button type="button" class="sort">Discount</button></th><th class="num" data-sort="change" title="Asking-price change since listing; arrow: since the previous scan"><button type="button" class="sort">Price Δ</button></th></tr></thead>
                         <tbody></tbody>
                     </table></div>
                     <button type="button" class="more" hidden>show more</button>
@@ -271,7 +288,7 @@
                     <div class="endpoint"><span class="method">GET</span><h2>/sommerhus</h2><span class="status">113 listings, 5 red-flagged listings excluded</span></div>
                     <p class="sub">Holiday houses (sommerhus)</p>
                     <div class="table-wrap"><table>
-                        <thead><tr><th>#</th><th>Address</th><th class="num">m²</th><th class="num">Rooms</th><th class="num">Asking</th><th class="num">Model</th><th class="num">Discount</th><th class="num" title="Asking-price change since listing; arrow: since the previous scan">Price Δ</th></tr></thead>
+                        <thead><tr><th>#</th><th data-sort="address"><button type="button" class="sort">Address</button></th><th class="num" data-sort="m2"><button type="button" class="sort">m²</button></th><th class="num" data-sort="rooms"><button type="button" class="sort">Rooms</button></th><th class="num" data-sort="asking"><button type="button" class="sort">Asking</button></th><th class="num" data-sort="model"><button type="button" class="sort">Model</button></th><th class="num" data-sort="discount"><button type="button" class="sort">Discount</button></th><th class="num" data-sort="change" title="Asking-price change since listing; arrow: since the previous scan"><button type="button" class="sort">Price Δ</button></th></tr></thead>
                         <tbody></tbody>
                     </table></div>
                     <button type="button" class="more" hidden>show more</button>
@@ -439,6 +456,9 @@
                             }));
                             sec.limit = PAGE;
                             sec.prevRun = data.prevRun;
+                            sec.sort = { key: "discount", dir: 1 };
+                            sec.querySelector('th[data-sort="discount"]').setAttribute("aria-sort", "ascending");
+                            sec.querySelectorAll("th[data-sort] .sort").forEach(b => b.onclick = () => sortBy(sec, b.parentNode.dataset.sort));
                             sec.querySelector(".more").onclick = () => { sec.limit += PAGE * 2; renderSection(sec); };
                         }
                         return data;
@@ -452,11 +472,39 @@
             return Number.isFinite(v) ? v * scale : fallback;
         }
 
+        // Price boxes take millions ("4", "4.5") or plain DKK ("4000000")
+        function price(input, fallback) {
+            const v = parseFloat(input.value);
+            if (!Number.isFinite(v)) return fallback;
+            return v >= 1000 ? v : v * 1e6;
+        }
+
+        // First click sorts sizes descending, everything else ascending; again flips it
+        const DESC_FIRST = new Set(["m2", "rooms"]);
+
+        function sortBy(sec, key) {
+            const dir = sec.sort.key === key ? -sec.sort.dir : (DESC_FIRST.has(key) ? -1 : 1);
+            sec.sort = { key, dir };
+            // No price change means unchanged; missing room counts stay at the bottom in both directions
+            const val = r => key === "change" ? r.change ?? 0 : r[key];
+            sec.rows.sort((a, b) => {
+                const x = val(a), y = val(b);
+                if (x === null || y === null) return (x === null) - (y === null);
+                return dir * (key === "address" ? x.localeCompare(y, "da") : x - y) || a.discount - b.discount;
+            });
+            sec.querySelectorAll("th[data-sort]").forEach(th => {
+                if (th.dataset.sort === key) th.setAttribute("aria-sort", dir > 0 ? "ascending" : "descending");
+                else th.removeAttribute("aria-sort");
+            });
+            sec.limit = PAGE;
+            renderSection(sec);
+        }
+
         function filters() {
             return {
                 area: fArea.value,
-                min: bound(fMin, -Infinity, 1e6),
-                max: bound(fMax, Infinity, 1e6),
+                min: price(fMin, -Infinity),
+                max: price(fMax, Infinity),
                 rooms: bound(fRooms, -Infinity),
                 m2min: bound(fM2min, -Infinity),
                 m2max: bound(fM2max, Infinity),
