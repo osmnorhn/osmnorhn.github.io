@@ -56,6 +56,7 @@
 
         .c { color: var(--muted); }
         .g { color: var(--green); font-weight: 700; }
+        .r { color: var(--red); font-weight: 700; }
         .down { color: var(--green); }
         .up { color: var(--red); }
         .since { font-size: 11.5px; font-weight: 700; margin-left: 6px; }
@@ -510,7 +511,7 @@
                 }
                 tr.append(cell(i + 1, "c"), td, cell(r.type, "type c"), cell(r.m2, "num"), cell(r.rooms ?? "–", "num"),
                     cell(millions(r.asking), "num"), cell(r.monthly === null ? "–" : r.monthly.toLocaleString("en"), "num"),
-                    cell(millions(r.model), "num c"), cell(percent(r.discount), "num g"), changeCell(r, sec.prevRun));
+                    cell(millions(r.model), "num c"), cell(percent(r.discount), r.discount > 0 ? "num r" : "num g"), changeCell(r, sec.prevRun));
                 tbody.append(tr);
             });
             if (!matches.length) {
