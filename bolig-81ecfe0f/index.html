@@ -152,6 +152,12 @@
         table:not(.all-types) th[data-sort="type"], table:not(.all-types) td.type { display: none; }
         /* Runs from before the four-model average have no per-model prices */
         table:not(.models) .model-col { display: none; }
+        /* Runs from before the sold-price model have no sold estimate */
+        table:not(.sold) .sold-col { display: none; }
+        table:not(.prev) .prev-col { display: none; }
+        /* The four per-model prices only show with "show models" ticked */
+        body:not(.show-models) th[data-sort^="model"]:not([data-sort="model"]),
+        body:not(.show-models) td.model-detail { display: none; }
 
         .filters {
             display: flex;
@@ -181,6 +187,8 @@
         #f-change { width: 200px; }
         .filters input { width: 110px; font-variant-numeric: tabular-nums; }
         .filters button, .more { cursor: pointer; color: var(--muted); }
+        .filters label.check { flex-direction: row; align-items: center; gap: 6px; padding-bottom: 6px; cursor: pointer; }
+        .filters label.check input { width: auto; margin: 0; accent-color: var(--green); }
         .filters button:hover, .more:hover { color: var(--text); border-color: var(--muted); }
         .filters :focus-visible, .more:focus-visible { outline: 2px solid var(--green); outline-offset: 1px; }
         .more { display: block; margin: 10px auto 0; }
@@ -219,7 +227,7 @@
     <div class="layout">
         <aside>
             <h2>// scans</h2>
-            <nav aria-label="Scan runs"><ul><li><a href="#2026-11-02T155513Z" data-day="2026-11-02T155513Z">2026-11-02 16:55</a></li><li><a href="#2026-11-02T114303Z" data-day="2026-11-02T114303Z">2026-11-02 12:43</a></li><li><a href="#2026-11-02T110402Z" data-day="2026-11-02T110402Z">2026-11-02 12:04</a></li><li><a href="#2026-11-02T101900Z" data-day="2026-11-02T101900Z">2026-11-02 11:19</a></li></ul></nav>
+            <nav aria-label="Scan runs"><ul><li><a href="#2026-11-02T164450Z" data-day="2026-11-02T164450Z">2026-11-02 17:44</a></li><li><a href="#2026-11-02T155513Z" data-day="2026-11-02T155513Z">2026-11-02 16:55</a></li><li><a href="#2026-11-02T114303Z" data-day="2026-11-02T114303Z">2026-11-02 12:43</a></li><li><a href="#2026-11-02T110402Z" data-day="2026-11-02T110402Z">2026-11-02 12:04</a></li><li><a href="#2026-11-02T101900Z" data-day="2026-11-02T101900Z">2026-11-02 11:19</a></li></ul></nav>
         </aside>
         <main>
             <header>
@@ -270,16 +278,40 @@
                 <label>size ≤ (m²)
                     <input id="f-m2max" type="number" min="0" step="10" inputmode="numeric" placeholder="any" />
                 </label>
+                <label class="check" title="ElasticNet, XGBoost, Size fit and Location fit prices">
+                    <input id="f-models" type="checkbox" /> show models
+                </label>
                 <button type="button" id="f-reset">reset</button>
             </form>
 
+            <article class="day" id="d-2026-11-02T164450Z" data-day="2026-11-02T164450Z" data-listings="2026-11-02T164450Z.json" hidden>
+                <h2 class="day-title">scan started 2026-11-02 17:44 Copenhagen time · <a href="https://github.com/osmnorhn/bolig-scanner/actions/runs/41484460583" target="_blank" rel="noopener noreferrer">run #41484460583</a></h2>
+                <section class="results">
+                    <div class="endpoint"><span class="method">GET</span><h2></h2><span class="status"></span></div>
+                    <p class="sub"></p>
+                    <div class="table-wrap"><table>
+                        <thead><tr><th>#</th><th data-sort="address"><button type="button" class="sort">Address</button></th><th data-sort="type"><button type="button" class="sort">Type</button></th><th class="num" data-sort="m2"><button type="button" class="sort">m²</button></th><th class="num" data-sort="rooms"><button type="button" class="sort">Rooms</button></th><th class="num" data-sort="asking"><button type="button" class="sort">Asking</button></th><th class="num" data-sort="monthly" title="Ejerudgift: monthly ownership cost, DKK"><button type="button" class="sort">Cost/mo</button></th><th class="num" data-sort="model" title="XGBoost, the most accurate of the four models (out-of-fold)"><button type="button" class="sort">Estimated Price</button></th><th class="num" data-sort="discount" title="Asking price relative to the estimated price; −40% asks 40% less"><button type="button" class="sort">vs. Estimate</button></th><th class="num" data-sort="change" title="Asking-price change since listing; arrow: since the previous scan"><button type="button" class="sort">Price Δ</button></th><th class="num sold-col" data-sort="sold" title="What it would sell for, from a model fitted on actual sale prices of the last 5 years (condos only)"><button type="button" class="sort">Sold est.</button></th><th class="num sold-col" data-sort="soldDiscount" title="Asking price relative to the sold estimate"><button type="button" class="sort">vs. Sold</button></th><th class="num model-col" data-sort="model1" title="modelPrice: ElasticNet hedonic model on log price"><button type="button" class="sort">ElasticNet</button></th><th class="num model-col" data-sort="model2" title="modelPrice2: XGBoost on log price"><button type="button" class="sort">XGBoost</button></th><th class="num model-col" data-sort="model3" title="modelPrice3: area × base rate + bedrooms × β₁ + bathrooms × β₂"><button type="button" class="sort">Size fit</button></th><th class="num model-col" data-sort="model4" title="modelPrice4: β₀ + β₁ floor + β₂ view score + β₃ km to nearest station"><button type="button" class="sort">Location fit</button></th><th class="num model-col" data-sort="average" title="finalModelPrice: average of the four model prices"><button type="button" class="sort">Average</button></th><th class="num prev-col" data-sort="prevSale" title="This unit's most recent ordinary sale (Tinglysning), with its year"><button type="button" class="sort">Last sold</button></th></tr></thead>
+                        <tbody></tbody>
+                    </table></div>
+                    <button type="button" class="more" hidden>show more</button>
+                </section>
+                <figure>
+                    <img src="2026-11-02T164450Z.png" alt="Scatter plots of asking price against estimated price per property type in the 2026-11-02 17:44 scan." width="2100" height="1950" loading="lazy" />
+                    <figcaption>Asking price vs estimated price. Green points ask less than the estimate, red more, ✕ are red-flagged listings that are not ranked.</figcaption>
+                </figure>
+                <figure>
+                    <a href="2026-11-02T164450Z_by_area.png" target="_blank" rel="noopener"><img src="2026-11-02T164450Z_by_area.png" alt="Condo asking price against estimated price, one panel per postal area, in the 2026-11-02 17:44 scan." width="4080" height="1080" loading="lazy" /></a>
+                    <figcaption>Condos by postal area: the 16 areas with most listings. Central Copenhagen's street-level zip codes are pooled per district. Click to open full size.</figcaption>
+                </figure>
+                <p class="note">Estimated price is an out-of-fold XGBoost estimate, the most accurate of the four models; vs. Estimate is the asking price relative to it. Listing descriptions are truncated to ~500 characters, so read the full listing before acting.</p>
+            </article>
             <article class="day" id="d-2026-11-02T155513Z" data-day="2026-11-02T155513Z" data-listings="2026-11-02T155513Z.json" hidden>
                 <h2 class="day-title">scan started 2026-11-02 16:55 Copenhagen time · <a href="https://github.com/osmnorhn/bolig-scanner/actions/runs/41476305314" target="_blank" rel="noopener noreferrer">run #41476305314</a></h2>
                 <section class="results">
                     <div class="endpoint"><span class="method">GET</span><h2></h2><span class="status"></span></div>
                     <p class="sub"></p>
                     <div class="table-wrap"><table>
-                        <thead><tr><th>#</th><th data-sort="address"><button type="button" class="sort">Address</button></th><th data-sort="type"><button type="button" class="sort">Type</button></th><th class="num" data-sort="m2"><button type="button" class="sort">m²</button></th><th class="num" data-sort="rooms"><button type="button" class="sort">Rooms</button></th><th class="num" data-sort="asking"><button type="button" class="sort">Asking</button></th><th class="num" data-sort="monthly" title="Ejerudgift: monthly ownership cost, DKK"><button type="button" class="sort">Cost/mo</button></th><th class="num" data-sort="model" title="Average of the four model prices (all out-of-fold)"><button type="button" class="sort">Estimated Price</button></th><th class="num" data-sort="discount" title="Asking price relative to the estimated price; −40% asks 40% less"><button type="button" class="sort">vs. Estimate</button></th><th class="num" data-sort="change" title="Asking-price change since listing; arrow: since the previous scan"><button type="button" class="sort">Price Δ</button></th><th class="num model-col" data-sort="model1" title="modelPrice: ElasticNet hedonic model on log price"><button type="button" class="sort">ElasticNet</button></th><th class="num model-col" data-sort="model2" title="modelPrice2: XGBoost on log price"><button type="button" class="sort">XGBoost</button></th><th class="num model-col" data-sort="model3" title="modelPrice3: area × base rate + bedrooms × β₁ + bathrooms × β₂"><button type="button" class="sort">Size fit</button></th><th class="num model-col" data-sort="model4" title="modelPrice4: β₀ + β₁ floor + β₂ view score + β₃ km to nearest station"><button type="button" class="sort">Location fit</button></th></tr></thead>
+                        <thead><tr><th>#</th><th data-sort="address"><button type="button" class="sort">Address</button></th><th data-sort="type"><button type="button" class="sort">Type</button></th><th class="num" data-sort="m2"><button type="button" class="sort">m²</button></th><th class="num" data-sort="rooms"><button type="button" class="sort">Rooms</button></th><th class="num" data-sort="asking"><button type="button" class="sort">Asking</button></th><th class="num" data-sort="monthly" title="Ejerudgift: monthly ownership cost, DKK"><button type="button" class="sort">Cost/mo</button></th><th class="num" data-sort="model" title="XGBoost, the most accurate of the four models (out-of-fold)"><button type="button" class="sort">Estimated Price</button></th><th class="num" data-sort="discount" title="Asking price relative to the estimated price; −40% asks 40% less"><button type="button" class="sort">vs. Estimate</button></th><th class="num" data-sort="change" title="Asking-price change since listing; arrow: since the previous scan"><button type="button" class="sort">Price Δ</button></th><th class="num sold-col" data-sort="sold" title="What it would sell for, from a model fitted on actual sale prices of the last 5 years (condos only)"><button type="button" class="sort">Sold est.</button></th><th class="num sold-col" data-sort="soldDiscount" title="Asking price relative to the sold estimate"><button type="button" class="sort">vs. Sold</button></th><th class="num model-col" data-sort="model1" title="modelPrice: ElasticNet hedonic model on log price"><button type="button" class="sort">ElasticNet</button></th><th class="num model-col" data-sort="model2" title="modelPrice2: XGBoost on log price"><button type="button" class="sort">XGBoost</button></th><th class="num model-col" data-sort="model3" title="modelPrice3: area × base rate + bedrooms × β₁ + bathrooms × β₂"><button type="button" class="sort">Size fit</button></th><th class="num model-col" data-sort="model4" title="modelPrice4: β₀ + β₁ floor + β₂ view score + β₃ km to nearest station"><button type="button" class="sort">Location fit</button></th><th class="num model-col" data-sort="average" title="finalModelPrice: average of the four model prices"><button type="button" class="sort">Average</button></th><th class="num prev-col" data-sort="prevSale" title="This unit's most recent ordinary sale (Tinglysning), with its year"><button type="button" class="sort">Last sold</button></th></tr></thead>
                         <tbody></tbody>
                     </table></div>
                     <button type="button" class="more" hidden>show more</button>
@@ -300,7 +332,7 @@
                     <div class="endpoint"><span class="method">GET</span><h2></h2><span class="status"></span></div>
                     <p class="sub"></p>
                     <div class="table-wrap"><table>
-                        <thead><tr><th>#</th><th data-sort="address"><button type="button" class="sort">Address</button></th><th data-sort="type"><button type="button" class="sort">Type</button></th><th class="num" data-sort="m2"><button type="button" class="sort">m²</button></th><th class="num" data-sort="rooms"><button type="button" class="sort">Rooms</button></th><th class="num" data-sort="asking"><button type="button" class="sort">Asking</button></th><th class="num" data-sort="monthly" title="Ejerudgift: monthly ownership cost, DKK"><button type="button" class="sort">Cost/mo</button></th><th class="num" data-sort="model" title="Average of the four model prices (all out-of-fold)"><button type="button" class="sort">Estimated Price</button></th><th class="num" data-sort="discount" title="Asking price relative to the estimated price; −40% asks 40% less"><button type="button" class="sort">vs. Estimate</button></th><th class="num" data-sort="change" title="Asking-price change since listing; arrow: since the previous scan"><button type="button" class="sort">Price Δ</button></th><th class="num model-col" data-sort="model1" title="modelPrice: ElasticNet hedonic model on log price"><button type="button" class="sort">ElasticNet</button></th><th class="num model-col" data-sort="model2" title="modelPrice2: XGBoost on log price"><button type="button" class="sort">XGBoost</button></th><th class="num model-col" data-sort="model3" title="modelPrice3: area × base rate + bedrooms × β₁ + bathrooms × β₂"><button type="button" class="sort">Size fit</button></th><th class="num model-col" data-sort="model4" title="modelPrice4: β₀ + β₁ floor + β₂ view score + β₃ km to nearest station"><button type="button" class="sort">Location fit</button></th></tr></thead>
+                        <thead><tr><th>#</th><th data-sort="address"><button type="button" class="sort">Address</button></th><th data-sort="type"><button type="button" class="sort">Type</button></th><th class="num" data-sort="m2"><button type="button" class="sort">m²</button></th><th class="num" data-sort="rooms"><button type="button" class="sort">Rooms</button></th><th class="num" data-sort="asking"><button type="button" class="sort">Asking</button></th><th class="num" data-sort="monthly" title="Ejerudgift: monthly ownership cost, DKK"><button type="button" class="sort">Cost/mo</button></th><th class="num" data-sort="model" title="XGBoost, the most accurate of the four models (out-of-fold)"><button type="button" class="sort">Estimated Price</button></th><th class="num" data-sort="discount" title="Asking price relative to the estimated price; −40% asks 40% less"><button type="button" class="sort">vs. Estimate</button></th><th class="num" data-sort="change" title="Asking-price change since listing; arrow: since the previous scan"><button type="button" class="sort">Price Δ</button></th><th class="num sold-col" data-sort="sold" title="What it would sell for, from a model fitted on actual sale prices of the last 5 years (condos only)"><button type="button" class="sort">Sold est.</button></th><th class="num sold-col" data-sort="soldDiscount" title="Asking price relative to the sold estimate"><button type="button" class="sort">vs. Sold</button></th><th class="num model-col" data-sort="model1" title="modelPrice: ElasticNet hedonic model on log price"><button type="button" class="sort">ElasticNet</button></th><th class="num model-col" data-sort="model2" title="modelPrice2: XGBoost on log price"><button type="button" class="sort">XGBoost</button></th><th class="num model-col" data-sort="model3" title="modelPrice3: area × base rate + bedrooms × β₁ + bathrooms × β₂"><button type="button" class="sort">Size fit</button></th><th class="num model-col" data-sort="model4" title="modelPrice4: β₀ + β₁ floor + β₂ view score + β₃ km to nearest station"><button type="button" class="sort">Location fit</button></th><th class="num model-col" data-sort="average" title="finalModelPrice: average of the four model prices"><button type="button" class="sort">Average</button></th><th class="num prev-col" data-sort="prevSale" title="This unit's most recent ordinary sale (Tinglysning), with its year"><button type="button" class="sort">Last sold</button></th></tr></thead>
                         <tbody></tbody>
                     </table></div>
                     <button type="button" class="more" hidden>show more</button>
@@ -321,7 +353,7 @@
                     <div class="endpoint"><span class="method">GET</span><h2></h2><span class="status"></span></div>
                     <p class="sub"></p>
                     <div class="table-wrap"><table>
-                        <thead><tr><th>#</th><th data-sort="address"><button type="button" class="sort">Address</button></th><th data-sort="type"><button type="button" class="sort">Type</button></th><th class="num" data-sort="m2"><button type="button" class="sort">m²</button></th><th class="num" data-sort="rooms"><button type="button" class="sort">Rooms</button></th><th class="num" data-sort="asking"><button type="button" class="sort">Asking</button></th><th class="num" data-sort="monthly" title="Ejerudgift: monthly ownership cost, DKK"><button type="button" class="sort">Cost/mo</button></th><th class="num" data-sort="model" title="Average of the four model prices (all out-of-fold)"><button type="button" class="sort">Estimated Price</button></th><th class="num" data-sort="discount" title="Asking price relative to the estimated price; −40% asks 40% less"><button type="button" class="sort">vs. Estimate</button></th><th class="num" data-sort="change" title="Asking-price change since listing; arrow: since the previous scan"><button type="button" class="sort">Price Δ</button></th><th class="num model-col" data-sort="model1" title="modelPrice: ElasticNet hedonic model on log price"><button type="button" class="sort">ElasticNet</button></th><th class="num model-col" data-sort="model2" title="modelPrice2: XGBoost on log price"><button type="button" class="sort">XGBoost</button></th><th class="num model-col" data-sort="model3" title="modelPrice3: area × base rate + bedrooms × β₁ + bathrooms × β₂"><button type="button" class="sort">Size fit</button></th><th class="num model-col" data-sort="model4" title="modelPrice4: β₀ + β₁ floor + β₂ view score + β₃ km to nearest station"><button type="button" class="sort">Location fit</button></th></tr></thead>
+                        <thead><tr><th>#</th><th data-sort="address"><button type="button" class="sort">Address</button></th><th data-sort="type"><button type="button" class="sort">Type</button></th><th class="num" data-sort="m2"><button type="button" class="sort">m²</button></th><th class="num" data-sort="rooms"><button type="button" class="sort">Rooms</button></th><th class="num" data-sort="asking"><button type="button" class="sort">Asking</button></th><th class="num" data-sort="monthly" title="Ejerudgift: monthly ownership cost, DKK"><button type="button" class="sort">Cost/mo</button></th><th class="num" data-sort="model" title="XGBoost, the most accurate of the four models (out-of-fold)"><button type="button" class="sort">Estimated Price</button></th><th class="num" data-sort="discount" title="Asking price relative to the estimated price; −40% asks 40% less"><button type="button" class="sort">vs. Estimate</button></th><th class="num" data-sort="change" title="Asking-price change since listing; arrow: since the previous scan"><button type="button" class="sort">Price Δ</button></th><th class="num sold-col" data-sort="sold" title="What it would sell for, from a model fitted on actual sale prices of the last 5 years (condos only)"><button type="button" class="sort">Sold est.</button></th><th class="num sold-col" data-sort="soldDiscount" title="Asking price relative to the sold estimate"><button type="button" class="sort">vs. Sold</button></th><th class="num model-col" data-sort="model1" title="modelPrice: ElasticNet hedonic model on log price"><button type="button" class="sort">ElasticNet</button></th><th class="num model-col" data-sort="model2" title="modelPrice2: XGBoost on log price"><button type="button" class="sort">XGBoost</button></th><th class="num model-col" data-sort="model3" title="modelPrice3: area × base rate + bedrooms × β₁ + bathrooms × β₂"><button type="button" class="sort">Size fit</button></th><th class="num model-col" data-sort="model4" title="modelPrice4: β₀ + β₁ floor + β₂ view score + β₃ km to nearest station"><button type="button" class="sort">Location fit</button></th><th class="num model-col" data-sort="average" title="finalModelPrice: average of the four model prices"><button type="button" class="sort">Average</button></th><th class="num prev-col" data-sort="prevSale" title="This unit's most recent ordinary sale (Tinglysning), with its year"><button type="button" class="sort">Last sold</button></th></tr></thead>
                         <tbody></tbody>
                     </table></div>
                     <button type="button" class="more" hidden>show more</button>
@@ -367,7 +399,7 @@
         </main>
     </div>
     <script>
-        const latest = "2026-11-02T155513Z";
+        const latest = "2026-11-02T164450Z";
         const TITLES = {"ejerlejlighed": "Condos (ejerlejlighed)", "villa": "Detached houses (villa)", "raekkehus": "Terraced houses (rækkehus)", "sommerhus": "Holiday houses (sommerhus)"};
         const DEFAULT_TYPE = "ejerlejlighed";
         const PAGE = 25;
@@ -441,7 +473,12 @@
                             floor: c.floor === undefined ? null : r[c.floor],
                             monthly: c.monthly === undefined ? null : r[c.monthly],
                             ...Object.fromEntries(MODEL_KEYS.map(k => [k, c[k] === undefined ? null : r[c[k]]])),
-                        })));
+                            sold: c.sold === undefined ? null : r[c.sold],
+                            prevSale: c.prevSale === undefined ? null : r[c.prevSale],
+                            prevSaleYear: c.prevSaleYear === undefined ? null : r[c.prevSaleYear],
+                        })).map(r => ({ ...r, soldDiscount: r.sold ? r.asking / r.sold - 1 : null })));
+                        sec.querySelector("table").classList.toggle("sold", article.columns.has("sold"));
+                        sec.querySelector("table").classList.toggle("prev", article.columns.has("prevSale"));
                         sec.querySelector("table").classList.toggle("models", article.columns.has("model1"));
                         sec.rows.sort((a, b) => a.discount - b.discount);
                         sec.limit = PAGE;
@@ -472,7 +509,7 @@
         // First click sorts sizes descending, everything else ascending; again flips it
         const DESC_FIRST = new Set(["m2", "rooms"]);
         const TEXT_KEYS = new Set(["address", "type"]);
-        const MODEL_KEYS = ["model1", "model2", "model3", "model4"];
+        const MODEL_KEYS = ["model1", "model2", "model3", "model4", "average"];
 
         function sortBy(sec, key) {
             const dir = sec.sort.key === key ? -sec.sort.dir : (DESC_FIRST.has(key) ? -1 : 1);
@@ -538,14 +575,17 @@
                 tr.append(cell(i + 1, "c"), td, cell(r.type, "type c"), cell(r.m2, "num"), cell(r.rooms ?? "–", "num"),
                     cell(millions(r.asking), "num"), cell(r.monthly === null ? "–" : r.monthly.toLocaleString("en"), "num"),
                     cell(millions(r.model), "num"), cell(percent(r.discount), r.discount > 0 ? "num r" : "num g"), changeCell(r, sec.prevRun),
-                    ...MODEL_KEYS.map(k => cell(r[k] === null ? "–" : millions(r[k]), "num c model-col")));
+                    cell(r.sold === null ? "–" : millions(r.sold), "num sold-col"),
+                    cell(r.soldDiscount === null ? "–" : percent(r.soldDiscount), r.soldDiscount === null ? "num c sold-col" : r.soldDiscount > 0 ? "num r sold-col" : "num g sold-col"),
+                    ...MODEL_KEYS.map(k => cell(r[k] === null ? "–" : millions(r[k]), k === "average" ? "num c model-col" : "num c model-col model-detail")),
+                    cell(r.prevSale === null ? "–" : `${millions(r.prevSale)} (${r.prevSaleYear})`, "num c prev-col"));
                 tbody.append(tr);
             });
             if (!matches.length) {
                 const tr = document.createElement("tr");
                 tr.className = "empty";
                 const td = cell("no listings match these filters");
-                td.colSpan = 14;
+                td.colSpan = 18;
                 tr.append(td);
                 tbody.append(tr);
             }
@@ -638,6 +678,8 @@
             if (current) renderAreas(current);
             refresh();
         });
+        const fModels = document.getElementById("f-models");
+        fModels.addEventListener("change", () => document.body.classList.toggle("show-models", fModels.checked));
         window.addEventListener("hashchange", () => { show(); window.scrollTo(0, 0); });
         show();
     </script>
