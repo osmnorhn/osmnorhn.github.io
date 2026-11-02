@@ -21,6 +21,7 @@
             --muted: #8b949e;
             --green: #3fb950;
             --blue: #79c0ff;
+            --red: #f85149;
             --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
             --max: 1200px;
         }
@@ -35,6 +36,7 @@
                 --muted: #59636e;
                 --green: #1a7f37;
                 --blue: #0550ae;
+                --red: #cf222e;
             }
         }
 
@@ -54,6 +56,9 @@
 
         .c { color: var(--muted); }
         .g { color: var(--green); font-weight: 700; }
+        .down { color: var(--green); }
+        .up { color: var(--red); }
+        .since { font-size: 11.5px; font-weight: 700; margin-left: 6px; }
 
         .layout {
             max-width: var(--max);
@@ -124,6 +129,38 @@
         tbody tr + tr td { border-top: 1px solid var(--border); }
         .num { text-align: right; font-variant-numeric: tabular-nums; }
 
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 12px 16px;
+            margin: 22px 0 0;
+            padding: 14px 16px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+        .filters[hidden] { display: none; }
+        .filters label { display: flex; flex-direction: column; gap: 4px; min-width: 0; font-size: 12.5px; color: var(--muted); }
+        .filters select, .filters input, .filters button, .more {
+            font: inherit;
+            font-size: 13.5px;
+            color: var(--text);
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 5px 8px;
+        }
+        .filters select { max-width: 100%; }
+        #f-area { min-width: 220px; }
+        .filters input { width: 110px; font-variant-numeric: tabular-nums; }
+        .filters button, .more { cursor: pointer; color: var(--muted); }
+        .filters button:hover, .more:hover { color: var(--text); border-color: var(--muted); }
+        .filters :focus-visible, .more:focus-visible { outline: 2px solid var(--green); outline-offset: 1px; }
+        .more { display: block; margin: 10px auto 0; }
+        .more[hidden] { display: none; }
+        .empty td { color: var(--muted); text-align: center; padding: 18px 14px; }
+
         figure { margin: 32px 0 0; }
         figure img { width: 100%; height: auto; display: block; border-radius: 10px; border: 1px solid var(--border); background: #fff; }
         figcaption { margin-top: 8px; color: var(--muted); font-size: 12.5px; }
@@ -145,6 +182,9 @@
             aside a { white-space: nowrap; }
             header { padding-top: 28px; }
             .status { margin-left: 0; width: 100%; }
+            .filters label:has(#f-area) { flex-basis: 100%; }
+            #f-area { min-width: 0; width: 100%; }
+            .filters input { width: 96px; }
             th, td { padding: 8px 10px; }
         }
     </style>
@@ -153,17 +193,102 @@
     <div class="layout">
         <aside>
             <h2>// scans</h2>
-            <nav aria-label="Scan runs"><ul><li><a href="#2026-11-02T101900Z" data-day="2026-11-02T101900Z">2026-11-02 11:19</a></li><li><a href="#2026-11-01T095430Z" data-day="2026-11-01T095430Z">2026-11-01 10:54</a></li><li><a href="#2026-10-31T202535Z" data-day="2026-10-31T202535Z">2026-10-31 21:25</a></li></ul></nav>
+            <nav aria-label="Scan runs"><ul><li><a href="#2026-11-02T110402Z" data-day="2026-11-02T110402Z">2026-11-02 12:04</a></li><li><a href="#2026-11-02T101900Z" data-day="2026-11-02T101900Z">2026-11-02 11:19</a></li><li><a href="#2026-11-01T095430Z" data-day="2026-11-01T095430Z">2026-11-01 10:54</a></li><li><a href="#2026-10-31T202535Z" data-day="2026-10-31T202535Z">2026-10-31 21:25</a></li></ul></nav>
         </aside>
         <main>
             <header>
-                <h1><span class="g">$</span> bolig-scanner --top 10</h1>
+                <h1><span class="g">$</span> bolig-scanner</h1>
                 <p>// asking price vs model price · Copenhagen area · every scan from the last 30 days</p>
             </header>
+            <form class="filters" id="filters" hidden>
+                <label>type
+                    <select id="f-type"><option value="">all</option></select>
+                </label>
+                <label>neighborhood
+                    <select id="f-area"><option value="">all</option></select>
+                </label>
+                <label>asking ≥ (M DKK)
+                    <input id="f-min" type="number" min="0" step="0.5" inputmode="decimal" placeholder="0" />
+                </label>
+                <label>asking ≤ (M DKK)
+                    <input id="f-max" type="number" min="0" step="0.5" inputmode="decimal" placeholder="any" />
+                </label>
+                <label>price change
+                    <select id="f-change">
+                        <option value="">any</option>
+                        <option value="down">reduced since listing</option>
+                        <option value="up">raised since listing</option>
+                        <option value="none">never changed</option>
+                        <option value="down-scan">reduced since last scan</option>
+                        <option value="up-scan">raised since last scan</option>
+                    </select>
+                </label>
+                <label>rooms ≥
+                    <select id="f-rooms">
+                        <option value="">any</option>
+                        <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option>
+                    </select>
+                </label>
+                <label>size ≥ (m²)
+                    <input id="f-m2min" type="number" min="0" step="10" inputmode="numeric" placeholder="0" />
+                </label>
+                <label>size ≤ (m²)
+                    <input id="f-m2max" type="number" min="0" step="10" inputmode="numeric" placeholder="any" />
+                </label>
+                <button type="button" id="f-reset">reset</button>
+            </form>
 
+            <article class="day" id="d-2026-11-02T110402Z" data-day="2026-11-02T110402Z" data-listings="2026-11-02T110402Z.json" hidden>
+                <h2 class="day-title">scan started 2026-11-02 12:04 Copenhagen time · <a href="https://github.com/osmnorhn/bolig-scanner/actions/runs/41433757317" target="_blank" rel="noopener noreferrer">run #41433757317</a></h2>
+                <section data-type="ejerlejlighed">
+                    <div class="endpoint"><span class="method">GET</span><h2>/ejerlejlighed</h2><span class="status">2817 listings, 19 red-flagged listings excluded</span></div>
+                    <p class="sub">Condos (ejerlejlighed)</p>
+                    <div class="table-wrap"><table>
+                        <thead><tr><th>#</th><th>Address</th><th class="num">m²</th><th class="num">Rooms</th><th class="num">Asking</th><th class="num">Model</th><th class="num">Discount</th><th class="num" title="Asking-price change since listing; arrow: since the previous scan">Price Δ</th></tr></thead>
+                        <tbody></tbody>
+                    </table></div>
+                    <button type="button" class="more" hidden>show more</button>
+                </section>
+                <section data-type="villa">
+                    <div class="endpoint"><span class="method">GET</span><h2>/villa</h2><span class="status">1468 listings, 7 red-flagged listings excluded</span></div>
+                    <p class="sub">Detached houses (villa)</p>
+                    <div class="table-wrap"><table>
+                        <thead><tr><th>#</th><th>Address</th><th class="num">m²</th><th class="num">Rooms</th><th class="num">Asking</th><th class="num">Model</th><th class="num">Discount</th><th class="num" title="Asking-price change since listing; arrow: since the previous scan">Price Δ</th></tr></thead>
+                        <tbody></tbody>
+                    </table></div>
+                    <button type="button" class="more" hidden>show more</button>
+                </section>
+                <section data-type="raekkehus">
+                    <div class="endpoint"><span class="method">GET</span><h2>/raekkehus</h2><span class="status">445 listings, 1 red-flagged listings excluded</span></div>
+                    <p class="sub">Terraced houses (rækkehus)</p>
+                    <div class="table-wrap"><table>
+                        <thead><tr><th>#</th><th>Address</th><th class="num">m²</th><th class="num">Rooms</th><th class="num">Asking</th><th class="num">Model</th><th class="num">Discount</th><th class="num" title="Asking-price change since listing; arrow: since the previous scan">Price Δ</th></tr></thead>
+                        <tbody></tbody>
+                    </table></div>
+                    <button type="button" class="more" hidden>show more</button>
+                </section>
+                <section data-type="sommerhus">
+                    <div class="endpoint"><span class="method">GET</span><h2>/sommerhus</h2><span class="status">113 listings, 5 red-flagged listings excluded</span></div>
+                    <p class="sub">Holiday houses (sommerhus)</p>
+                    <div class="table-wrap"><table>
+                        <thead><tr><th>#</th><th>Address</th><th class="num">m²</th><th class="num">Rooms</th><th class="num">Asking</th><th class="num">Model</th><th class="num">Discount</th><th class="num" title="Asking-price change since listing; arrow: since the previous scan">Price Δ</th></tr></thead>
+                        <tbody></tbody>
+                    </table></div>
+                    <button type="button" class="more" hidden>show more</button>
+                </section>
+                <figure>
+                    <img src="2026-11-02T110402Z.png" alt="Scatter plots of asking price against model price per property type in the 2026-11-02 12:04 scan." width="2100" height="1950" loading="lazy" />
+                    <figcaption>Asking price vs model price. Green points sit below the model, red above, ✕ are red-flagged listings that are not ranked.</figcaption>
+                </figure>
+                <figure>
+                    <a href="2026-11-02T110402Z_by_area.png" target="_blank" rel="noopener"><img src="2026-11-02T110402Z_by_area.png" alt="Condo asking price against model price, one panel per postal area, in the 2026-11-02 12:04 scan." width="4080" height="1080" loading="lazy" /></a>
+                    <figcaption>Condos by postal area: the 16 areas with most listings. Central Copenhagen's street-level zip codes are pooled per district. Click to open full size.</figcaption>
+                </figure>
+                <p class="note">Model price is an out-of-fold ElasticNetCV estimate. Listing descriptions are truncated to ~500 characters, so read the full listing before acting.</p>
+            </article>
             <article class="day" id="d-2026-11-02T101900Z" data-day="2026-11-02T101900Z" hidden>
                 <h2 class="day-title">scan started 2026-11-02 11:19 Copenhagen time · <a href="https://github.com/osmnorhn/bolig-scanner/actions/runs/41427804359" target="_blank" rel="noopener noreferrer">run #41427804359</a></h2>
-                <section>
+                <section data-type="ejerlejlighed">
                     <div class="endpoint"><span class="method">GET</span><h2>/ejerlejlighed</h2><span class="status">2817 listings, 19 red-flagged listings excluded, asking price ≤ 10M DKK.</span></div>
                     <p class="sub">Condos (ejerlejlighed)</p>
                     <div class="table-wrap"><table>
@@ -171,7 +296,7 @@
                         <tbody><tr><td class="c">1</td><td><a href="https://www.boligsiden.dk/adresse/havsgaardsvej-35-2--2900-hellerup-01570320__35__2____" target="_blank" rel="noopener noreferrer">Havsgårdsvej 35, 2., 2900 Hellerup</a></td><td class="num">200</td><td class="num">5</td><td class="num">7.50M</td><td class="num c">15.78M</td><td class="num g">−53%</td></tr><tr><td class="c">2</td><td><a href="https://www.boligsiden.dk/adresse/egebo-6-2620-albertslund-01650077___6_______" target="_blank" rel="noopener noreferrer">Egebo 6, 2620 Albertslund</a></td><td class="num">171</td><td class="num">6</td><td class="num">4.50M</td><td class="num c">9.06M</td><td class="num g">−50%</td></tr><tr><td class="c">3</td><td><a href="https://www.boligsiden.dk/adresse/lyngbyvej-237-1-th-2900-hellerup-01570527_237__1__th" target="_blank" rel="noopener noreferrer">Lyngbyvej 237, 1. th, 2900 Hellerup</a></td><td class="num">94</td><td class="num">3</td><td class="num">3.69M</td><td class="num c">6.70M</td><td class="num g">−45%</td></tr><tr><td class="c">4</td><td><a href="https://www.boligsiden.dk/adresse/vordingborggade-98-0--2100-koebenhavn-oe-01018452__98_st____" target="_blank" rel="noopener noreferrer">Vordingborggade 98, 0., 2100 København Ø</a></td><td class="num">149</td><td class="num">5</td><td class="num">7.79M</td><td class="num c">13.53M</td><td class="num g">−42%</td></tr><tr><td class="c">5</td><td><a href="https://www.boligsiden.dk/adresse/ove-billes-vej-17-0--2300-koebenhavn-s-01015352__17_st____" target="_blank" rel="noopener noreferrer">Ove Billes Vej 17, 0., 2300 København S</a></td><td class="num">128</td><td class="num">4</td><td class="num">6.50M</td><td class="num c">11.00M</td><td class="num g">−41%</td></tr><tr><td class="c">6</td><td><a href="https://www.boligsiden.dk/adresse/lyngbyvej-70a-2100-koebenhavn-oe-d3e1f2de-7fa4-4f4f-ac57-fa319c915926" target="_blank" rel="noopener noreferrer">Lyngbyvej 70A, 2100 København Ø</a></td><td class="num">119</td><td class="num">4</td><td class="num">5.50M</td><td class="num c">9.25M</td><td class="num g">−41%</td></tr><tr><td class="c">7</td><td><a href="https://www.boligsiden.dk/adresse/hvidovrevej-89a-1--2650-hvidovre-01674032_89a__1____" target="_blank" rel="noopener noreferrer">Hvidovrevej 89A, 1., 2650 Hvidovre</a></td><td class="num">106</td><td class="num">4</td><td class="num">4.00M</td><td class="num c">6.56M</td><td class="num g">−39%</td></tr><tr><td class="c">8</td><td><a href="https://www.boligsiden.dk/adresse/lyngbyvej-231-1--2900-hellerup-01570527_231__1____" target="_blank" rel="noopener noreferrer">Lyngbyvej 231, 1., 2900 Hellerup</a></td><td class="num">111</td><td class="num">4</td><td class="num">5.50M</td><td class="num c">8.85M</td><td class="num g">−38%</td></tr><tr><td class="c">9</td><td><a href="https://www.boligsiden.dk/adresse/hvidovrevej-89b-1--2650-hvidovre-01674032_89b__1____" target="_blank" rel="noopener noreferrer">Hvidovrevej 89B, 1., 2650 Hvidovre</a></td><td class="num">131</td><td class="num">5</td><td class="num">4.00M</td><td class="num c">6.21M</td><td class="num g">−36%</td></tr><tr><td class="c">10</td><td><a href="https://www.boligsiden.dk/adresse/noerregade-24g-1165-koebenhavn-k-01015204_24g_______" target="_blank" rel="noopener noreferrer">Nørregade 24G, 1165 København K</a></td><td class="num">114</td><td class="num">3</td><td class="num">7.00M</td><td class="num c">10.69M</td><td class="num g">−35%</td></tr></tbody>
                     </table></div>
                 </section>
-                <section>
+                <section data-type="sommerhus">
                     <div class="endpoint"><span class="method">GET</span><h2>/sommerhus</h2><span class="status">113 listings, 5 red-flagged listings excluded, asking price ≤ 10M DKK.</span></div>
                     <p class="sub">Holiday houses (sommerhus)</p>
                     <div class="table-wrap"><table>
@@ -180,7 +305,7 @@
                     </table></div>
                 </section>
                 <figure>
-                    <img src="2026-11-02T101900Z.png" alt="Scatter plots of asking price against model price for condos and holiday houses in the 2026-11-02 11:19 scan." width="2100" height="975" loading="lazy" />
+                    <img src="2026-11-02T101900Z.png" alt="Scatter plots of asking price against model price per property type in the 2026-11-02 11:19 scan." width="2100" height="975" loading="lazy" />
                     <figcaption>Asking price vs model price. Green points sit below the model, red above, ✕ are red-flagged listings that are not ranked.</figcaption>
                 </figure>
                 <figure>
@@ -191,7 +316,7 @@
             </article>
             <article class="day" id="d-2026-11-01T095430Z" data-day="2026-11-01T095430Z" hidden>
                 <h2 class="day-title">scan started 2026-11-01 10:54 Copenhagen time · <a href="https://github.com/osmnorhn/bolig-scanner/actions/runs/41295122139" target="_blank" rel="noopener noreferrer">run #41295122139</a></h2>
-                <section>
+                <section data-type="ejerlejlighed">
                     <div class="endpoint"><span class="method">GET</span><h2>/ejerlejlighed</h2><span class="status">2827 listings, 19 red-flagged listings excluded, asking price ≤ 10M DKK.</span></div>
                     <p class="sub">Condos (ejerlejlighed)</p>
                     <div class="table-wrap"><table>
@@ -199,7 +324,7 @@
                         <tbody><tr><td class="c">1</td><td><a href="https://www.boligsiden.dk/adresse/havsgaardsvej-35-2--2900-hellerup-01570320__35__2____" target="_blank" rel="noopener noreferrer">Havsgårdsvej 35, 2., 2900 Hellerup</a></td><td class="num">200</td><td class="num">5</td><td class="num">7.50M</td><td class="num c">15.88M</td><td class="num g">−53%</td></tr><tr><td class="c">2</td><td><a href="https://www.boligsiden.dk/adresse/lyngbyvej-237-1-th-2900-hellerup-01570527_237__1__th" target="_blank" rel="noopener noreferrer">Lyngbyvej 237, 1. th, 2900 Hellerup</a></td><td class="num">94</td><td class="num">3</td><td class="num">3.69M</td><td class="num c">6.66M</td><td class="num g">−44%</td></tr><tr><td class="c">3</td><td><a href="https://www.boligsiden.dk/adresse/ove-billes-vej-17-0--2300-koebenhavn-s-01015352__17_st____" target="_blank" rel="noopener noreferrer">Ove Billes Vej 17, 0., 2300 København S</a></td><td class="num">128</td><td class="num">4</td><td class="num">6.50M</td><td class="num c">11.17M</td><td class="num g">−42%</td></tr><tr><td class="c">4</td><td><a href="https://www.boligsiden.dk/adresse/egebo-6-2620-albertslund-01650077___6_______" target="_blank" rel="noopener noreferrer">Egebo 6, 2620 Albertslund</a></td><td class="num">171</td><td class="num">6</td><td class="num">4.50M</td><td class="num c">7.68M</td><td class="num g">−41%</td></tr><tr><td class="c">5</td><td><a href="https://www.boligsiden.dk/adresse/vordingborggade-98-0--2100-koebenhavn-oe-01018452__98_st____" target="_blank" rel="noopener noreferrer">Vordingborggade 98, 0., 2100 København Ø</a></td><td class="num">149</td><td class="num">5</td><td class="num">7.79M</td><td class="num c">12.95M</td><td class="num g">−40%</td></tr><tr><td class="c">6</td><td><a href="https://www.boligsiden.dk/adresse/lyngbyvej-70a-2100-koebenhavn-oe-d3e1f2de-7fa4-4f4f-ac57-fa319c915926" target="_blank" rel="noopener noreferrer">Lyngbyvej 70A, 2100 København Ø</a></td><td class="num">119</td><td class="num">4</td><td class="num">5.50M</td><td class="num c">9.06M</td><td class="num g">−39%</td></tr><tr><td class="c">7</td><td><a href="https://www.boligsiden.dk/adresse/lyngbyvej-231-1--2900-hellerup-01570527_231__1____" target="_blank" rel="noopener noreferrer">Lyngbyvej 231, 1., 2900 Hellerup</a></td><td class="num">111</td><td class="num">4</td><td class="num">5.50M</td><td class="num c">8.74M</td><td class="num g">−37%</td></tr><tr><td class="c">8</td><td><a href="https://www.boligsiden.dk/adresse/hvidovrevej-89b-1--2650-hvidovre-01674032_89b__1____" target="_blank" rel="noopener noreferrer">Hvidovrevej 89B, 1., 2650 Hvidovre</a></td><td class="num">131</td><td class="num">5</td><td class="num">4.00M</td><td class="num c">6.29M</td><td class="num g">−36%</td></tr><tr><td class="c">9</td><td><a href="https://www.boligsiden.dk/adresse/hvidovrevej-89a-1--2650-hvidovre-01674032_89a__1____" target="_blank" rel="noopener noreferrer">Hvidovrevej 89A, 1., 2650 Hvidovre</a></td><td class="num">106</td><td class="num">4</td><td class="num">4.00M</td><td class="num c">6.23M</td><td class="num g">−36%</td></tr><tr><td class="c">10</td><td><a href="https://www.boligsiden.dk/adresse/noerregade-24g-1165-koebenhavn-k-01015204_24g_______" target="_blank" rel="noopener noreferrer">Nørregade 24G, 1165 København K</a></td><td class="num">114</td><td class="num">3</td><td class="num">7.00M</td><td class="num c">10.88M</td><td class="num g">−36%</td></tr></tbody>
                     </table></div>
                 </section>
-                <section>
+                <section data-type="sommerhus">
                     <div class="endpoint"><span class="method">GET</span><h2>/sommerhus</h2><span class="status">115 listings, 5 red-flagged listings excluded, asking price ≤ 10M DKK.</span></div>
                     <p class="sub">Holiday houses (sommerhus)</p>
                     <div class="table-wrap"><table>
@@ -208,7 +333,7 @@
                     </table></div>
                 </section>
                 <figure>
-                    <img src="2026-11-01T095430Z.png" alt="Scatter plots of asking price against model price for condos and holiday houses in the 2026-11-01 10:54 scan." width="2100" height="975" loading="lazy" />
+                    <img src="2026-11-01T095430Z.png" alt="Scatter plots of asking price against model price per property type in the 2026-11-01 10:54 scan." width="2100" height="975" loading="lazy" />
                     <figcaption>Asking price vs model price. Green points sit below the model, red above, ✕ are red-flagged listings that are not ranked.</figcaption>
                 </figure>
                 <figure>
@@ -219,7 +344,7 @@
             </article>
             <article class="day" id="d-2026-10-31T202535Z" data-day="2026-10-31T202535Z" hidden>
                 <h2 class="day-title">scan started 2026-10-31 21:25 Copenhagen time · <a href="https://github.com/osmnorhn/bolig-scanner/actions/runs/41238839154" target="_blank" rel="noopener noreferrer">run #41238839154</a></h2>
-                <section>
+                <section data-type="ejerlejlighed">
                     <div class="endpoint"><span class="method">GET</span><h2>/ejerlejlighed</h2><span class="status">2830 listings, 19 red-flagged listings excluded, asking price ≤ 10M DKK.</span></div>
                     <p class="sub">Condos (ejerlejlighed)</p>
                     <div class="table-wrap"><table>
@@ -227,7 +352,7 @@
                         <tbody><tr><td class="c">1</td><td><a href="https://www.boligsiden.dk/adresse/havsgaardsvej-35-2--2900-hellerup-01570320__35__2____" target="_blank" rel="noopener noreferrer">Havsgårdsvej 35, 2., 2900 Hellerup</a></td><td class="num">200</td><td class="num">5</td><td class="num">7.50M</td><td class="num c">15.87M</td><td class="num g">−53%</td></tr><tr><td class="c">2</td><td><a href="https://www.boligsiden.dk/adresse/lyngbyvej-237-1-th-2900-hellerup-01570527_237__1__th" target="_blank" rel="noopener noreferrer">Lyngbyvej 237, 1. th, 2900 Hellerup</a></td><td class="num">94</td><td class="num">3</td><td class="num">3.69M</td><td class="num c">6.78M</td><td class="num g">−46%</td></tr><tr><td class="c">3</td><td><a href="https://www.boligsiden.dk/adresse/egebo-6-2620-albertslund-01650077___6_______" target="_blank" rel="noopener noreferrer">Egebo 6, 2620 Albertslund</a></td><td class="num">171</td><td class="num">6</td><td class="num">4.50M</td><td class="num c">8.06M</td><td class="num g">−44%</td></tr><tr><td class="c">4</td><td><a href="https://www.boligsiden.dk/adresse/ove-billes-vej-17-0--2300-koebenhavn-s-01015352__17_st____" target="_blank" rel="noopener noreferrer">Ove Billes Vej 17, 0., 2300 København S</a></td><td class="num">128</td><td class="num">4</td><td class="num">6.50M</td><td class="num c">11.10M</td><td class="num g">−41%</td></tr><tr><td class="c">5</td><td><a href="https://www.boligsiden.dk/adresse/lyngbyvej-70a-2100-koebenhavn-oe-d3e1f2de-7fa4-4f4f-ac57-fa319c915926" target="_blank" rel="noopener noreferrer">Lyngbyvej 70A, 2100 København Ø</a></td><td class="num">119</td><td class="num">4</td><td class="num">5.50M</td><td class="num c">9.21M</td><td class="num g">−40%</td></tr><tr><td class="c">6</td><td><a href="https://www.boligsiden.dk/adresse/vordingborggade-98-0--2100-koebenhavn-oe-01018452__98_st____" target="_blank" rel="noopener noreferrer">Vordingborggade 98, 0., 2100 København Ø</a></td><td class="num">149</td><td class="num">5</td><td class="num">7.79M</td><td class="num c">12.87M</td><td class="num g">−39%</td></tr><tr><td class="c">7</td><td><a href="https://www.boligsiden.dk/adresse/lyngbyvej-231-1--2900-hellerup-01570527_231__1____" target="_blank" rel="noopener noreferrer">Lyngbyvej 231, 1., 2900 Hellerup</a></td><td class="num">111</td><td class="num">4</td><td class="num">5.50M</td><td class="num c">8.91M</td><td class="num g">−38%</td></tr><tr><td class="c">8</td><td><a href="https://www.boligsiden.dk/adresse/hvidovrevej-89a-1--2650-hvidovre-01674032_89a__1____" target="_blank" rel="noopener noreferrer">Hvidovrevej 89A, 1., 2650 Hvidovre</a></td><td class="num">106</td><td class="num">4</td><td class="num">4.00M</td><td class="num c">6.24M</td><td class="num g">−36%</td></tr><tr><td class="c">9</td><td><a href="https://www.boligsiden.dk/adresse/hvidovrevej-89b-1--2650-hvidovre-01674032_89b__1____" target="_blank" rel="noopener noreferrer">Hvidovrevej 89B, 1., 2650 Hvidovre</a></td><td class="num">131</td><td class="num">5</td><td class="num">4.00M</td><td class="num c">6.16M</td><td class="num g">−35%</td></tr><tr><td class="c">10</td><td><a href="https://www.boligsiden.dk/adresse/bagsvaerd-hovedgade-99-9-k-2880-bagsvaerd-01590039__99__9___k" target="_blank" rel="noopener noreferrer">Bagsværd Hovedgade 99, 9. k, 2880 Bagsværd</a></td><td class="num">48</td><td class="num">2</td><td class="num">1.59M</td><td class="num c">2.37M</td><td class="num g">−33%</td></tr></tbody>
                     </table></div>
                 </section>
-                <section>
+                <section data-type="sommerhus">
                     <div class="endpoint"><span class="method">GET</span><h2>/sommerhus</h2><span class="status">115 listings, 5 red-flagged listings excluded, asking price ≤ 10M DKK.</span></div>
                     <p class="sub">Holiday houses (sommerhus)</p>
                     <div class="table-wrap"><table>
@@ -236,7 +361,7 @@
                     </table></div>
                 </section>
                 <figure>
-                    <img src="2026-10-31T202535Z.png" alt="Scatter plots of asking price against model price for condos and holiday houses in the 2026-10-31 21:25 scan." width="2100" height="975" loading="lazy" />
+                    <img src="2026-10-31T202535Z.png" alt="Scatter plots of asking price against model price per property type in the 2026-10-31 21:25 scan." width="2100" height="975" loading="lazy" />
                     <figcaption>Asking price vs model price. Green points sit below the model, red above, ✕ are red-flagged listings that are not ranked.</figcaption>
                 </figure>
                 <figure>
@@ -248,7 +373,168 @@
         </main>
     </div>
     <script>
-        const latest = "2026-11-02T101900Z";
+        const latest = "2026-11-02T110402Z";
+        const PAGE = 25;
+        const form = document.getElementById("filters");
+        const fType = document.getElementById("f-type");
+        const fArea = document.getElementById("f-area");
+        const fMin = document.getElementById("f-min");
+        const fMax = document.getElementById("f-max");
+        const fChange = document.getElementById("f-change");
+        const fRooms = document.getElementById("f-rooms");
+        const fM2min = document.getElementById("f-m2min");
+        const fM2max = document.getElementById("f-m2max");
+        const inputs = [fType, fArea, fMin, fMax, fChange, fRooms, fM2min, fM2max];
+        const loaded = {};  // run -> parsed opportunities.json
+        let current = null;
+        let defaultsSet = false;
+
+        const millions = v => (v / 1e6).toFixed(2) + "M";
+        const percent = v => (v < 0 ? "−" : "+") + Math.abs(Math.round(v * 100)) + "%";
+        const percent1 = v => (v < 0 ? "−" : "+") + Math.abs(v).toFixed(1) + "%";
+        const CHANGE = {
+            down: r => r.change < 0,
+            up: r => r.change > 0,
+            none: r => !r.change,
+            "down-scan": r => r.prev !== null && r.asking < r.prev,
+            "up-scan": r => r.prev !== null && r.asking > r.prev,
+        };
+
+        function changeCell(r, prevRun) {
+            const td = cell(r.change ? percent1(r.change) : "–", "num" + (r.change < 0 ? " down" : r.change > 0 ? " up" : " c"));
+            td.title = r.change ? "asking-price change since listing" : "no price change since listing";
+            if (r.prev !== null) {
+                const span = document.createElement("span");
+                const down = r.asking < r.prev;
+                span.className = "since " + (down ? "down" : "up");
+                span.textContent = (down ? "↓" : "↑") + percent1((r.asking / r.prev - 1) * 100);
+                td.title = `since ${prevRun}: ${millions(r.prev)} → ${millions(r.asking)}`;
+                td.append(span);
+            }
+            return td;
+        }
+
+        function cell(text, cls) {
+            const td = document.createElement("td");
+            if (cls) td.className = cls;
+            td.textContent = text;
+            return td;
+        }
+
+        function load(article) {
+            const run = article.dataset.day;
+            if (!loaded[run]) {
+                loaded[run] = fetch(article.dataset.listings)
+                    .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+                    .then(data => {
+                        const c = Object.fromEntries(data.columns.map((name, i) => [name, i]));
+                        for (const sec of article.querySelectorAll("section[data-type]")) {
+                            const type = data[sec.dataset.type];
+                            sec.rows = (type ? type.rows : []).map(r => ({
+                                address: r[c.address], url: r[c.url] && data.urlBase + r[c.url], area: r[c.area],
+                                m2: r[c.m2], rooms: r[c.rooms], asking: r[c.asking], model: r[c.model],
+                                discount: r[c.asking] / r[c.model] - 1,
+                                change: c.change === undefined ? null : r[c.change],
+                                prev: c.prev === undefined ? null : r[c.prev],
+                            }));
+                            sec.limit = PAGE;
+                            sec.prevRun = data.prevRun;
+                            sec.querySelector(".more").onclick = () => { sec.limit += PAGE * 2; renderSection(sec); };
+                        }
+                        return data;
+                    });
+            }
+            return loaded[run];
+        }
+
+        function bound(input, fallback, scale = 1) {
+            const v = parseFloat(input.value);
+            return Number.isFinite(v) ? v * scale : fallback;
+        }
+
+        function filters() {
+            return {
+                area: fArea.value,
+                min: bound(fMin, -Infinity, 1e6),
+                max: bound(fMax, Infinity, 1e6),
+                rooms: bound(fRooms, -Infinity),
+                m2min: bound(fM2min, -Infinity),
+                m2max: bound(fM2max, Infinity),
+                change: fChange.value,
+            };
+        }
+
+        function renderSection(sec) {
+            const f = filters();
+            sec.hidden = !!fType.value && fType.value !== sec.dataset.type;
+            const matches = sec.rows.filter(r => (!f.area || r.area === f.area)
+                && r.asking >= f.min && r.asking <= f.max
+                && (f.rooms === -Infinity || r.rooms >= f.rooms)
+                && r.m2 >= f.m2min && r.m2 <= f.m2max
+                && (!f.change || CHANGE[f.change](r)));
+            const tbody = sec.querySelector("tbody");
+            tbody.replaceChildren();
+            matches.slice(0, sec.limit).forEach((r, i) => {
+                const tr = document.createElement("tr");
+                const td = document.createElement("td");
+                if (r.url) {
+                    const a = document.createElement("a");
+                    a.href = r.url;
+                    a.target = "_blank";
+                    a.rel = "noopener noreferrer";
+                    a.textContent = r.address;
+                    td.append(a);
+                } else {
+                    td.textContent = r.address;
+                }
+                tr.append(cell(i + 1, "c"), td, cell(r.m2, "num"), cell(r.rooms ?? "–", "num"),
+                    cell(millions(r.asking), "num"), cell(millions(r.model), "num c"), cell(percent(r.discount), "num g"), changeCell(r, sec.prevRun));
+                tbody.append(tr);
+            });
+            if (!matches.length) {
+                const tr = document.createElement("tr");
+                tr.className = "empty";
+                const td = cell("no listings match these filters");
+                td.colSpan = 8;
+                tr.append(td);
+                tbody.append(tr);
+            }
+            const shown = Math.min(sec.limit, matches.length);
+            sec.querySelector(".status").textContent = `${matches.length} of ${sec.rows.length} ranked listings match · showing ${shown}`;
+            const more = sec.querySelector(".more");
+            more.hidden = shown >= matches.length;
+            more.textContent = `show more (${matches.length - shown} left)`;
+        }
+
+        function renderRun(article) {
+            const sections = article.querySelectorAll("section[data-type]");
+            const type = fType.value;
+            fType.replaceChildren(new Option("all", ""));
+            sections.forEach(sec => fType.append(new Option(`${sec.querySelector("h2").textContent.slice(1)} (${sec.rows.length})`, sec.dataset.type)));
+            fType.value = [...sections].some(sec => sec.dataset.type === type) ? type : "";
+            const areas = new Map();
+            sections.forEach(sec => sec.rows.forEach(r => areas.set(r.area, (areas.get(r.area) || 0) + 1)));
+            const selected = fArea.value;
+            fArea.replaceChildren(new Option("all", ""));
+            [...areas].sort((a, b) => a[0].localeCompare(b[0], "da")).forEach(([area, n]) => {
+                fArea.append(new Option(`${area} (${n})`, area));
+            });
+            fArea.value = areas.has(selected) ? selected : "";
+            const prevRun = sections[0] && sections[0].prevRun;
+            for (const opt of fChange.options) {
+                if (!opt.value.endsWith("-scan")) continue;
+                opt.disabled = !prevRun;
+                opt.textContent = opt.textContent.replace(/ \(.*\)$/, "") + (prevRun ? ` (${prevRun})` : "");
+            }
+            if (fChange.selectedOptions[0].disabled) fChange.value = "";
+            sections.forEach(sec => renderSection(sec));
+        }
+
+        function refresh() {
+            if (!current) return;
+            current.querySelectorAll("section[data-type]").forEach(sec => { sec.limit = PAGE; renderSection(sec); });
+        }
+
         function show() {
             const wanted = location.hash.slice(1);
             const day = document.getElementById("d-" + wanted) ? wanted : latest;
@@ -257,7 +543,26 @@
                 if (a.dataset.day === day) a.setAttribute("aria-current", "page");
                 else a.removeAttribute("aria-current");
             });
+            const article = document.getElementById("d-" + day);
+            current = null;
+            form.hidden = !article.dataset.listings;
+            if (form.hidden) return;
+            load(article).then(data => {
+                if (!defaultsSet && data.maxPrice) fMax.value = data.maxPrice / 1e6;
+                defaultsSet = true;
+                if (article.hidden) return;  // another run was picked while this one loaded
+                current = article;
+                renderRun(article);
+            }).catch(() => {
+                article.querySelectorAll("section[data-type] .status").forEach(s => s.textContent = "could not load listings");
+            });
         }
+
+        inputs.forEach(input => input.addEventListener(input.tagName === "SELECT" ? "change" : "input", refresh));
+        document.getElementById("f-reset").addEventListener("click", () => {
+            inputs.forEach(input => input.value = "");
+            refresh();
+        });
         window.addEventListener("hashchange", () => { show(); window.scrollTo(0, 0); });
         show();
     </script>
