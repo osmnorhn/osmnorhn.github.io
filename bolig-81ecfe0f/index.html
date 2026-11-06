@@ -171,8 +171,8 @@
         }
         .filters[hidden] { display: none; }
         .filters .off { opacity: .45; }
-        .filters label { display: flex; flex-direction: column; gap: 4px; min-width: 0; font-size: 12.5px; color: var(--muted); }
-        .filters select, .filters input, .filters button, .more {
+        .filters label, .filters .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; font-size: 12.5px; color: var(--muted); }
+        .filters select, .filters input, .filters button, .more, .multi summary {
             font: inherit;
             font-size: 13.5px;
             color: var(--text);
@@ -182,7 +182,31 @@
             padding: 5px 8px;
         }
         .filters select { max-width: 100%; }
-        #f-area { min-width: 220px; }
+        /* Neighborhood multi-select: a checkbox list that drops down from a select-looking summary */
+        .multi { position: relative; min-width: 220px; }
+        .multi summary { list-style: none; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 24px; }
+        .multi summary::-webkit-details-marker { display: none; }
+        .multi summary::after { content: "▾"; position: absolute; right: 8px; color: var(--muted); }
+        .multi .menu {
+            position: absolute;
+            z-index: 2;
+            top: calc(100% + 4px);
+            left: 0;
+            width: max(100%, 260px);
+            padding: 8px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .25);
+        }
+        .multi .bar { display: flex; gap: 6px; margin-bottom: 6px; }
+        .filters .multi .bar input { flex: 1; width: auto; min-width: 0; }
+        .multi .options { max-height: 280px; overflow-y: auto; }
+        .filters .multi .options label { flex-direction: row; align-items: center; gap: 8px; padding: 4px 4px; font-size: 13.5px; color: var(--text); cursor: pointer; border-radius: 4px; }
+        .multi .options label:hover { background: var(--bg); }
+        .multi .options label[hidden] { display: none; }
+        .filters .multi .options input { width: auto; margin: 0; accent-color: var(--green); }
+        .multi .options .n { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; }
         #f-change { width: 200px; }
         .filters input { width: 110px; font-variant-numeric: tabular-nums; }
         .filters button, .more { cursor: pointer; color: var(--muted); }
@@ -215,8 +239,9 @@
             aside a { white-space: nowrap; }
             header { padding-top: 28px; }
             .status { margin-left: 0; width: 100%; }
-            .filters label:has(#f-area) { flex-basis: 100%; }
+            .filters .field:has(#f-area) { flex-basis: 100%; }
             #f-area { min-width: 0; width: 100%; }
+            .multi .menu { width: 100%; }
             .filters input { width: 96px; }
             th, td, .sort { padding: 8px 10px; }
         }
@@ -237,9 +262,18 @@
                 <label>type
                     <select id="f-type"></select>
                 </label>
-                <label>neighborhood
-                    <select id="f-area"><option value="">all</option></select>
-                </label>
+                <div class="field">neighborhood
+                    <details class="multi" id="f-area">
+                        <summary>all</summary>
+                        <div class="menu">
+                            <div class="bar">
+                                <input type="search" placeholder="search" aria-label="Search neighborhoods" />
+                                <button type="button">clear</button>
+                            </div>
+                            <div class="options" role="group" aria-label="Neighborhoods"></div>
+                        </div>
+                    </details>
+                </div>
                 <label>asking ≥ (M or DKK)
                     <input id="f-min" type="number" min="0" step="0.5" inputmode="decimal" placeholder="0" />
                 </label>
@@ -498,7 +532,11 @@
         const fFloorMin = document.getElementById("f-floormin");
         const fFloorMax = document.getElementById("f-floormax");
         const fCost = document.getElementById("f-cost");
-        const inputs = [fType, fArea, fMin, fMax, fChange, fRooms, fFloorMin, fFloorMax, fCost, fM2min, fM2max];
+        const areaSummary = fArea.querySelector("summary");
+        const areaSearch = fArea.querySelector("input[type=search]");
+        const areaOptions = fArea.querySelector(".options");
+        const chosenAreas = new Set();
+        const inputs = [fType, fMin, fMax, fChange, fRooms, fFloorMin, fFloorMax, fCost, fM2min, fM2max];
         const loaded = {};  // run -> parsed opportunities.json
         let current = null;
         let defaultsSet = false;
@@ -613,7 +651,7 @@
         function filters() {
             return {
                 type: fType.value,
-                area: fArea.value,
+                areas: chosenAreas,
                 min: price(fMin, -Infinity),
                 max: price(fMax, Infinity),
                 rooms: bound(fRooms, -Infinity),
@@ -630,7 +668,7 @@
             const f = filters();
             const article = sec.closest("article");
             const ofType = sec.rows.filter(r => !f.type || r.type === f.type);
-            const matches = ofType.filter(r => (!f.area || r.area === f.area)
+            const matches = ofType.filter(r => (!f.areas.size || f.areas.has(r.area))
                 && r.asking >= f.min && r.asking <= f.max
                 && (f.rooms === -Infinity || r.rooms >= f.rooms)
                 && r.m2 >= f.m2min && r.m2 <= f.m2max
@@ -687,12 +725,34 @@
             const sec = article.querySelector("section.results");
             const areas = new Map();
             sec.rows.forEach(r => { if (!fType.value || r.type === fType.value) areas.set(r.area, (areas.get(r.area) || 0) + 1); });
-            const selected = fArea.value;
-            fArea.replaceChildren(new Option("all", ""));
-            [...areas].sort((a, b) => a[0].localeCompare(b[0], "da")).forEach(([area, n]) => {
-                fArea.append(new Option(`${area} (${n})`, area));
-            });
-            fArea.value = areas.has(selected) ? selected : "";
+            // Drop picks the selected type has no listings in
+            chosenAreas.forEach(area => { if (!areas.has(area)) chosenAreas.delete(area); });
+            areaOptions.replaceChildren(...[...areas].sort((a, b) => a[0].localeCompare(b[0], "da")).map(([area, n]) => {
+                const label = document.createElement("label");
+                const box = document.createElement("input");
+                box.type = "checkbox";
+                box.value = area;
+                box.checked = chosenAreas.has(area);
+                const count = document.createElement("span");
+                count.className = "n";
+                count.textContent = n;
+                label.append(box, area, count);
+                return label;
+            }));
+            searchAreas();
+            labelAreas();
+        }
+
+        function labelAreas() {
+            areaSummary.textContent = !chosenAreas.size ? "all"
+                : chosenAreas.size === 1 ? [...chosenAreas][0]
+                : `${chosenAreas.size} neighborhoods`;
+            areaSummary.title = [...chosenAreas].sort((a, b) => a.localeCompare(b, "da")).join(", ");
+        }
+
+        function searchAreas() {
+            const q = areaSearch.value.trim().toLocaleLowerCase("da");
+            areaOptions.querySelectorAll("label").forEach(l => l.hidden = !!q && !l.textContent.toLocaleLowerCase("da").includes(q));
         }
 
         function renderRun(article) {
@@ -751,8 +811,32 @@
 
         inputs.filter(input => input !== fType).forEach(input => input.addEventListener(input.tagName === "SELECT" ? "change" : "input", refresh));
         fType.addEventListener("change", () => { if (current) { renderAreas(current); refresh(); } });
+        areaOptions.addEventListener("change", e => {
+            if (e.target.checked) chosenAreas.add(e.target.value);
+            else chosenAreas.delete(e.target.value);
+            labelAreas();
+            refresh();
+        });
+        areaSearch.addEventListener("input", searchAreas);
+        fArea.querySelector(".bar button").addEventListener("click", () => {
+            chosenAreas.clear();
+            areaOptions.querySelectorAll("input").forEach(box => box.checked = false);
+            labelAreas();
+            refresh();
+        });
+        fArea.addEventListener("toggle", () => { if (fArea.open) areaSearch.focus(); });
+        document.addEventListener("click", e => { if (!fArea.contains(e.target)) fArea.open = false; });
+        fArea.addEventListener("keydown", e => {
+            if (e.key !== "Escape") return;
+            fArea.open = false;
+            areaSummary.focus();
+        });
+        // Enter in the search box would otherwise submit the form
+        areaSearch.addEventListener("keydown", e => { if (e.key === "Enter") e.preventDefault(); });
         document.getElementById("f-reset").addEventListener("click", () => {
             inputs.forEach(input => input.value = "");
+            chosenAreas.clear();
+            areaSearch.value = "";
             if (current) fType.value = current.types.includes(DEFAULT_TYPE) ? DEFAULT_TYPE : current.types[0];
             if (current) renderAreas(current);
             refresh();
