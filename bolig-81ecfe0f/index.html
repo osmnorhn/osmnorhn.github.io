@@ -239,9 +239,7 @@
         .remove:hover { color: var(--red); border-color: var(--red); }
         .remove:focus-visible { outline: 2px solid var(--green); outline-offset: 1px; }
 
-        figure { margin: 32px 0 0; }
-        figure img { width: 100%; height: auto; display: block; border-radius: 10px; border: 1px solid var(--border); background: #fff; }
-        figcaption { margin-top: 8px; color: var(--muted); font-size: 12.5px; }
+        .plots { margin: 8px 0 0; color: var(--muted); font-size: 12.5px; }
         .note { margin: 24px 0 0; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12.5px; }
 
         @media (max-width: 760px) {
@@ -349,15 +347,8 @@
                     </table></div>
                     <button type="button" class="more" hidden>show more</button>
                 </section>
-                <figure>
-                    <img src="2026-11-06T100921Z.png" alt="Scatter plots of asking price against estimated price per property type in the 2026-11-06 11:09 scan." width="2100" height="1950" loading="lazy" />
-                    <figcaption>Asking price vs estimated price. Green points ask less than the estimate, red more, ✕ are red-flagged listings that are not ranked.</figcaption>
-                </figure>
-                <figure>
-                    <a href="2026-11-06T100921Z_by_area.png" target="_blank" rel="noopener"><img src="2026-11-06T100921Z_by_area.png" alt="Condo asking price against estimated price, one panel per postal area, in the 2026-11-06 11:09 scan." width="4080" height="1080" loading="lazy" /></a>
-                    <figcaption>Condos by postal area: the 16 areas with most listings. Central Copenhagen's street-level zip codes are pooled per district. Click to open full size.</figcaption>
-                </figure>
                 <p class="note">Estimated price is an out-of-fold XGBoost estimate, the most accurate of the four models; vs. Estimate is the asking price relative to it. Listing descriptions are truncated to ~500 characters, so read the full listing before acting.</p>
+                <p class="plots">plots: <a href="2026-11-06T100921Z.png" target="_blank" rel="noopener" title="Green points ask less than the estimate, red more, ✕ are red-flagged listings that are not ranked">asking vs estimated price</a> · <a href="2026-11-06T100921Z_by_area.png" target="_blank" rel="noopener" title="The 16 postal areas with most condo listings; central Copenhagen's street-level zip codes are pooled per district">condos by postal area</a></p>
             </article>
             <article class="day" id="d-2026-11-05T100448Z" data-day="2026-11-05T100448Z" data-listings="2026-11-05T100448Z.json" hidden>
                 <h2 class="day-title">scan started 2026-11-05 11:04 Copenhagen time</h2>
@@ -370,15 +361,8 @@
                     </table></div>
                     <button type="button" class="more" hidden>show more</button>
                 </section>
-                <figure>
-                    <img src="2026-11-05T100448Z.png" alt="Scatter plots of asking price against estimated price per property type in the 2026-11-05 11:04 scan." width="2100" height="1950" loading="lazy" />
-                    <figcaption>Asking price vs estimated price. Green points ask less than the estimate, red more, ✕ are red-flagged listings that are not ranked.</figcaption>
-                </figure>
-                <figure>
-                    <a href="2026-11-05T100448Z_by_area.png" target="_blank" rel="noopener"><img src="2026-11-05T100448Z_by_area.png" alt="Condo asking price against estimated price, one panel per postal area, in the 2026-11-05 11:04 scan." width="4080" height="1080" loading="lazy" /></a>
-                    <figcaption>Condos by postal area: the 16 areas with most listings. Central Copenhagen's street-level zip codes are pooled per district. Click to open full size.</figcaption>
-                </figure>
                 <p class="note">Estimated price is an out-of-fold XGBoost estimate, the most accurate of the four models; vs. Estimate is the asking price relative to it. Listing descriptions are truncated to ~500 characters, so read the full listing before acting.</p>
+                <p class="plots">plots: <a href="2026-11-05T100448Z.png" target="_blank" rel="noopener" title="Green points ask less than the estimate, red more, ✕ are red-flagged listings that are not ranked">asking vs estimated price</a> · <a href="2026-11-05T100448Z_by_area.png" target="_blank" rel="noopener" title="The 16 postal areas with most condo listings; central Copenhagen's street-level zip codes are pooled per district">condos by postal area</a></p>
             </article>
             <article class="day" id="d-2026-11-04T101158Z" data-day="2026-11-04T101158Z" data-listings="2026-11-04T101158Z.json" hidden>
                 <h2 class="day-title">scan started 2026-11-04 11:11 Copenhagen time</h2>
@@ -391,15 +375,8 @@
                     </table></div>
                     <button type="button" class="more" hidden>show more</button>
                 </section>
-                <figure>
-                    <img src="2026-11-04T101158Z.png" alt="Scatter plots of asking price against estimated price per property type in the 2026-11-04 11:11 scan." width="2100" height="1950" loading="lazy" />
-                    <figcaption>Asking price vs estimated price. Green points ask less than the estimate, red more, ✕ are red-flagged listings that are not ranked.</figcaption>
-                </figure>
-                <figure>
-                    <a href="2026-11-04T101158Z_by_area.png" target="_blank" rel="noopener"><img src="2026-11-04T101158Z_by_area.png" alt="Condo asking price against estimated price, one panel per postal area, in the 2026-11-04 11:11 scan." width="4080" height="1080" loading="lazy" /></a>
-                    <figcaption>Condos by postal area: the 16 areas with most listings. Central Copenhagen's street-level zip codes are pooled per district. Click to open full size.</figcaption>
-                </figure>
                 <p class="note">Estimated price is an out-of-fold XGBoost estimate, the most accurate of the four models; vs. Estimate is the asking price relative to it. Listing descriptions are truncated to ~500 characters, so read the full listing before acting.</p>
+                <p class="plots">plots: <a href="2026-11-04T101158Z.png" target="_blank" rel="noopener" title="Green points ask less than the estimate, red more, ✕ are red-flagged listings that are not ranked">asking vs estimated price</a> · <a href="2026-11-04T101158Z_by_area.png" target="_blank" rel="noopener" title="The 16 postal areas with most condo listings; central Copenhagen's street-level zip codes are pooled per district">condos by postal area</a></p>
             </article>
             <article class="day" id="d-2026-11-03T101922Z" data-day="2026-11-03T101922Z" data-listings="2026-11-03T101922Z.json" hidden>
                 <h2 class="day-title">scan started 2026-11-03 11:19 Copenhagen time</h2>
@@ -412,15 +389,8 @@
                     </table></div>
                     <button type="button" class="more" hidden>show more</button>
                 </section>
-                <figure>
-                    <img src="2026-11-03T101922Z.png" alt="Scatter plots of asking price against estimated price per property type in the 2026-11-03 11:19 scan." width="2100" height="1950" loading="lazy" />
-                    <figcaption>Asking price vs estimated price. Green points ask less than the estimate, red more, ✕ are red-flagged listings that are not ranked.</figcaption>
-                </figure>
-                <figure>
-                    <a href="2026-11-03T101922Z_by_area.png" target="_blank" rel="noopener"><img src="2026-11-03T101922Z_by_area.png" alt="Condo asking price against estimated price, one panel per postal area, in the 2026-11-03 11:19 scan." width="4080" height="1080" loading="lazy" /></a>
-                    <figcaption>Condos by postal area: the 16 areas with most listings. Central Copenhagen's street-level zip codes are pooled per district. Click to open full size.</figcaption>
-                </figure>
                 <p class="note">Estimated price is an out-of-fold XGBoost estimate, the most accurate of the four models; vs. Estimate is the asking price relative to it. Listing descriptions are truncated to ~500 characters, so read the full listing before acting.</p>
+                <p class="plots">plots: <a href="2026-11-03T101922Z.png" target="_blank" rel="noopener" title="Green points ask less than the estimate, red more, ✕ are red-flagged listings that are not ranked">asking vs estimated price</a> · <a href="2026-11-03T101922Z_by_area.png" target="_blank" rel="noopener" title="The 16 postal areas with most condo listings; central Copenhagen's street-level zip codes are pooled per district">condos by postal area</a></p>
             </article>
             <article class="day" id="d-2026-11-02T164450Z" data-day="2026-11-02T164450Z" data-listings="2026-11-02T164450Z.json" hidden>
                 <h2 class="day-title">scan started 2026-11-02 17:44 Copenhagen time</h2>
@@ -433,15 +403,8 @@
                     </table></div>
                     <button type="button" class="more" hidden>show more</button>
                 </section>
-                <figure>
-                    <img src="2026-11-02T164450Z.png" alt="Scatter plots of asking price against estimated price per property type in the 2026-11-02 17:44 scan." width="2100" height="1950" loading="lazy" />
-                    <figcaption>Asking price vs estimated price. Green points ask less than the estimate, red more, ✕ are red-flagged listings that are not ranked.</figcaption>
-                </figure>
-                <figure>
-                    <a href="2026-11-02T164450Z_by_area.png" target="_blank" rel="noopener"><img src="2026-11-02T164450Z_by_area.png" alt="Condo asking price against estimated price, one panel per postal area, in the 2026-11-02 17:44 scan." width="4080" height="1080" loading="lazy" /></a>
-                    <figcaption>Condos by postal area: the 16 areas with most listings. Central Copenhagen's street-level zip codes are pooled per district. Click to open full size.</figcaption>
-                </figure>
                 <p class="note">Estimated price is an out-of-fold XGBoost estimate, the most accurate of the four models; vs. Estimate is the asking price relative to it. Listing descriptions are truncated to ~500 characters, so read the full listing before acting.</p>
+                <p class="plots">plots: <a href="2026-11-02T164450Z.png" target="_blank" rel="noopener" title="Green points ask less than the estimate, red more, ✕ are red-flagged listings that are not ranked">asking vs estimated price</a> · <a href="2026-11-02T164450Z_by_area.png" target="_blank" rel="noopener" title="The 16 postal areas with most condo listings; central Copenhagen's street-level zip codes are pooled per district">condos by postal area</a></p>
             </article>
             <article class="day" id="d-2026-11-02T155513Z" data-day="2026-11-02T155513Z" data-listings="2026-11-02T155513Z.json" hidden>
                 <h2 class="day-title">scan started 2026-11-02 16:55 Copenhagen time</h2>
@@ -454,15 +417,8 @@
                     </table></div>
                     <button type="button" class="more" hidden>show more</button>
                 </section>
-                <figure>
-                    <img src="2026-11-02T155513Z.png" alt="Scatter plots of asking price against estimated price per property type in the 2026-11-02 16:55 scan." width="2100" height="1950" loading="lazy" />
-                    <figcaption>Asking price vs estimated price. Green points ask less than the estimate, red more, ✕ are red-flagged listings that are not ranked.</figcaption>
-                </figure>
-                <figure>
-                    <a href="2026-11-02T155513Z_by_area.png" target="_blank" rel="noopener"><img src="2026-11-02T155513Z_by_area.png" alt="Condo asking price against estimated price, one panel per postal area, in the 2026-11-02 16:55 scan." width="4080" height="1080" loading="lazy" /></a>
-                    <figcaption>Condos by postal area: the 16 areas with most listings. Central Copenhagen's street-level zip codes are pooled per district. Click to open full size.</figcaption>
-                </figure>
                 <p class="note">Estimated price is the mean of four out-of-fold models (ElasticNetCV, XGBoost, area/bedroom/bathroom and floor/view/transit linear fits); vs. Estimate is the asking price relative to it. Listing descriptions are truncated to ~500 characters, so read the full listing before acting.</p>
+                <p class="plots">plots: <a href="2026-11-02T155513Z.png" target="_blank" rel="noopener" title="Green points ask less than the estimate, red more, ✕ are red-flagged listings that are not ranked">asking vs estimated price</a> · <a href="2026-11-02T155513Z_by_area.png" target="_blank" rel="noopener" title="The 16 postal areas with most condo listings; central Copenhagen's street-level zip codes are pooled per district">condos by postal area</a></p>
             </article>
             <article class="day" id="d-2026-11-02T114303Z" data-day="2026-11-02T114303Z" data-listings="2026-11-02T114303Z.json" hidden>
                 <h2 class="day-title">scan started 2026-11-02 12:43 Copenhagen time</h2>
@@ -475,15 +431,8 @@
                     </table></div>
                     <button type="button" class="more" hidden>show more</button>
                 </section>
-                <figure>
-                    <img src="2026-11-02T114303Z.png" alt="Scatter plots of asking price against estimated price per property type in the 2026-11-02 12:43 scan." width="2100" height="1950" loading="lazy" />
-                    <figcaption>Asking price vs estimated price. Green points ask less than the estimate, red more, ✕ are red-flagged listings that are not ranked.</figcaption>
-                </figure>
-                <figure>
-                    <a href="2026-11-02T114303Z_by_area.png" target="_blank" rel="noopener"><img src="2026-11-02T114303Z_by_area.png" alt="Condo asking price against estimated price, one panel per postal area, in the 2026-11-02 12:43 scan." width="4080" height="1080" loading="lazy" /></a>
-                    <figcaption>Condos by postal area: the 16 areas with most listings. Central Copenhagen's street-level zip codes are pooled per district. Click to open full size.</figcaption>
-                </figure>
                 <p class="note">Model price is an out-of-fold ElasticNetCV estimate. Listing descriptions are truncated to ~500 characters, so read the full listing before acting.</p>
+                <p class="plots">plots: <a href="2026-11-02T114303Z.png" target="_blank" rel="noopener" title="Green points ask less than the estimate, red more, ✕ are red-flagged listings that are not ranked">asking vs estimated price</a> · <a href="2026-11-02T114303Z_by_area.png" target="_blank" rel="noopener" title="The 16 postal areas with most condo listings; central Copenhagen's street-level zip codes are pooled per district">condos by postal area</a></p>
             </article>
             <article class="day" id="d-2026-11-02T110402Z" data-day="2026-11-02T110402Z" data-listings="2026-11-02T110402Z.json" hidden>
                 <h2 class="day-title">scan started 2026-11-02 12:04 Copenhagen time</h2>
@@ -496,15 +445,8 @@
                     </table></div>
                     <button type="button" class="more" hidden>show more</button>
                 </section>
-                <figure>
-                    <img src="2026-11-02T110402Z.png" alt="Scatter plots of asking price against estimated price per property type in the 2026-11-02 12:04 scan." width="2100" height="1950" loading="lazy" />
-                    <figcaption>Asking price vs estimated price. Green points ask less than the estimate, red more, ✕ are red-flagged listings that are not ranked.</figcaption>
-                </figure>
-                <figure>
-                    <a href="2026-11-02T110402Z_by_area.png" target="_blank" rel="noopener"><img src="2026-11-02T110402Z_by_area.png" alt="Condo asking price against estimated price, one panel per postal area, in the 2026-11-02 12:04 scan." width="4080" height="1080" loading="lazy" /></a>
-                    <figcaption>Condos by postal area: the 16 areas with most listings. Central Copenhagen's street-level zip codes are pooled per district. Click to open full size.</figcaption>
-                </figure>
                 <p class="note">Model price is an out-of-fold ElasticNetCV estimate. Listing descriptions are truncated to ~500 characters, so read the full listing before acting.</p>
+                <p class="plots">plots: <a href="2026-11-02T110402Z.png" target="_blank" rel="noopener" title="Green points ask less than the estimate, red more, ✕ are red-flagged listings that are not ranked">asking vs estimated price</a> · <a href="2026-11-02T110402Z_by_area.png" target="_blank" rel="noopener" title="The 16 postal areas with most condo listings; central Copenhagen's street-level zip codes are pooled per district">condos by postal area</a></p>
             </article>
             <article class="day" id="d-2026-11-02T101900Z" data-day="2026-11-02T101900Z" hidden>
                 <h2 class="day-title">scan started 2026-11-02 11:19 Copenhagen time</h2>
@@ -524,15 +466,8 @@
                         <tbody><tr><td class="c">1</td><td><a href="https://www.boligsiden.dk/adresse/lupinvaenget-4-2750-ballerup-01510947___4_______" target="_blank" rel="noopener noreferrer">Lupinvænget 4, 2750 Ballerup</a></td><td class="num">36</td><td class="num">1</td><td class="num">0.45M</td><td class="num c">1.04M</td><td class="num g">−57%</td></tr><tr><td class="c">2</td><td><a href="https://www.boligsiden.dk/adresse/lenesvej-86-2730-herlev-01632034__86_______" target="_blank" rel="noopener noreferrer">Lenesvej 86, 2730 Herlev</a></td><td class="num">30</td><td class="num">1</td><td class="num">0.59M</td><td class="num c">1.05M</td><td class="num g">−43%</td></tr><tr><td class="c">3</td><td><a href="https://www.boligsiden.dk/adresse/solager-120-2630-taastrup-01697260_120_______" target="_blank" rel="noopener noreferrer">Solager 120, 2630 Taastrup</a></td><td class="num">50</td><td class="num">2</td><td class="num">0.75M</td><td class="num c">1.30M</td><td class="num g">−43%</td></tr><tr><td class="c">4</td><td><a href="https://www.boligsiden.dk/adresse/lenesvej-67-2730-herlev-01632034__67_______" target="_blank" rel="noopener noreferrer">Lenesvej 67, 2730 Herlev</a></td><td class="num">37</td><td class="num">2</td><td class="num">0.69M</td><td class="num c">1.15M</td><td class="num g">−39%</td></tr><tr><td class="c">5</td><td><a href="https://www.boligsiden.dk/adresse/lenesvej-25-2730-herlev-01632034__25_______" target="_blank" rel="noopener noreferrer">Lenesvej 25, 2730 Herlev</a></td><td class="num">50</td><td class="num">3</td><td class="num">0.99M</td><td class="num c">1.63M</td><td class="num g">−39%</td></tr><tr><td class="c">6</td><td><a href="https://www.boligsiden.dk/adresse/hf.-kettehoej-115-2650-hvidovre-01674619_115_______" target="_blank" rel="noopener noreferrer">Hf. Kettehøj 115, 2650 Hvidovre</a></td><td class="num">57</td><td class="num">–</td><td class="num">1.09M</td><td class="num c">1.73M</td><td class="num g">−37%</td></tr><tr><td class="c">7</td><td><a href="https://www.boligsiden.dk/adresse/tagetesvej-3-2610-roedovre-01750847___3_______" target="_blank" rel="noopener noreferrer">Tagetesvej 3, 2610 Rødovre</a></td><td class="num">50</td><td class="num">3</td><td class="num">1.20M</td><td class="num c">1.88M</td><td class="num g">−36%</td></tr><tr><td class="c">8</td><td><a href="https://www.boligsiden.dk/adresse/hf.-syvendehus-11-2730-herlev-01632040__11_______" target="_blank" rel="noopener noreferrer">Hf. Syvendehus 11, 2730 Herlev</a></td><td class="num">70</td><td class="num">3</td><td class="num">1.20M</td><td class="num c">1.86M</td><td class="num g">−36%</td></tr><tr><td class="c">9</td><td><a href="https://www.boligsiden.dk/adresse/harrestrup-vaenge-18-2740-skovlunde-01510578__18_______" target="_blank" rel="noopener noreferrer">Harrestrup Vænge 18, 2740 Skovlunde</a></td><td class="num">60</td><td class="num">2</td><td class="num">1.00M</td><td class="num c">1.54M</td><td class="num g">−35%</td></tr><tr><td class="c">10</td><td><a href="https://www.boligsiden.dk/adresse/hf.-soenderbro-42-2791-dragoer-01851599__42_______" target="_blank" rel="noopener noreferrer">Hf. Sønderbro 42, 2791 Dragør</a></td><td class="num">30</td><td class="num">2</td><td class="num">1.09M</td><td class="num c">1.68M</td><td class="num g">−35%</td></tr></tbody>
                     </table></div>
                 </section>
-                <figure>
-                    <img src="2026-11-02T101900Z.png" alt="Scatter plots of asking price against estimated price per property type in the 2026-11-02 11:19 scan." width="2100" height="975" loading="lazy" />
-                    <figcaption>Asking price vs estimated price. Green points ask less than the estimate, red more, ✕ are red-flagged listings that are not ranked.</figcaption>
-                </figure>
-                <figure>
-                    <a href="2026-11-02T101900Z_by_area.png" target="_blank" rel="noopener"><img src="2026-11-02T101900Z_by_area.png" alt="Condo asking price against estimated price, one panel per postal area, in the 2026-11-02 11:19 scan." width="4080" height="1080" loading="lazy" /></a>
-                    <figcaption>Condos by postal area: the 16 areas with most listings. Central Copenhagen's street-level zip codes are pooled per district. Click to open full size.</figcaption>
-                </figure>
                 <p class="note">Model price is an out-of-fold ElasticNetCV estimate. Listing descriptions are truncated to ~500 characters, so read the full listing before acting.</p>
+                <p class="plots">plots: <a href="2026-11-02T101900Z.png" target="_blank" rel="noopener" title="Green points ask less than the estimate, red more, ✕ are red-flagged listings that are not ranked">asking vs estimated price</a> · <a href="2026-11-02T101900Z_by_area.png" target="_blank" rel="noopener" title="The 16 postal areas with most condo listings; central Copenhagen's street-level zip codes are pooled per district">condos by postal area</a></p>
             </article>
             <article class="day" id="d-favorites" data-day="favorites" hidden>
                 <section>
