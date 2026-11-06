@@ -22,6 +22,7 @@
             --green: #3fb950;
             --blue: #79c0ff;
             --red: #f85149;
+            --yellow: #d29922;
             --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
             --max: 1200px;
         }
@@ -37,6 +38,7 @@
                 --green: #1a7f37;
                 --blue: #0550ae;
                 --red: #cf222e;
+                --yellow: #9a6700;
             }
         }
 
@@ -218,6 +220,25 @@
         .more[hidden] { display: none; }
         .empty td { color: var(--muted); text-align: center; padding: 18px 14px; }
 
+        /* Favorites: a star per listing, kept in this browser's localStorage */
+        .star { all: unset; cursor: pointer; color: var(--muted); font-size: 15px; line-height: 1; padding: 2px; border-radius: 4px; }
+        .star:hover, .star.on { color: var(--yellow); }
+        .star:focus-visible { outline: 2px solid var(--green); outline-offset: 1px; }
+        aside a.fav-link { margin-bottom: 8px; }
+        tr.gone td:not(:last-child) { opacity: .5; }
+        .remove {
+            font: inherit;
+            font-size: 12.5px;
+            color: var(--muted);
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 3px 8px;
+            cursor: pointer;
+        }
+        .remove:hover { color: var(--red); border-color: var(--red); }
+        .remove:focus-visible { outline: 2px solid var(--green); outline-offset: 1px; }
+
         figure { margin: 32px 0 0; }
         figure img { width: 100%; height: auto; display: block; border-radius: 10px; border: 1px solid var(--border); background: #fff; }
         figcaption { margin-top: 8px; color: var(--muted); font-size: 12.5px; }
@@ -251,7 +272,7 @@
     <div class="layout">
         <aside>
             <h2>// scans</h2>
-            <nav aria-label="Scan runs"><ul><li><a href="#2026-11-06T100921Z" data-day="2026-11-06T100921Z">2026-11-06 11:09</a></li><li><a href="#2026-11-05T100448Z" data-day="2026-11-05T100448Z">2026-11-05 11:04</a></li><li><a href="#2026-11-04T101158Z" data-day="2026-11-04T101158Z">2026-11-04 11:11</a></li><li><a href="#2026-11-03T101922Z" data-day="2026-11-03T101922Z">2026-11-03 11:19</a></li><li><a href="#2026-11-02T164450Z" data-day="2026-11-02T164450Z">2026-11-02 17:44</a></li><li><a href="#2026-11-02T155513Z" data-day="2026-11-02T155513Z">2026-11-02 16:55</a></li><li><a href="#2026-11-02T114303Z" data-day="2026-11-02T114303Z">2026-11-02 12:43</a></li><li><a href="#2026-11-02T110402Z" data-day="2026-11-02T110402Z">2026-11-02 12:04</a></li><li><a href="#2026-11-02T101900Z" data-day="2026-11-02T101900Z">2026-11-02 11:19</a></li></ul></nav>
+            <nav aria-label="Scan runs"><ul><li><a href="#favorites" data-day="favorites" class="fav-link">★ favorites<span id="fav-count"></span></a></li><li><a href="#2026-11-06T100921Z" data-day="2026-11-06T100921Z">2026-11-06 11:09</a></li><li><a href="#2026-11-05T100448Z" data-day="2026-11-05T100448Z">2026-11-05 11:04</a></li><li><a href="#2026-11-04T101158Z" data-day="2026-11-04T101158Z">2026-11-04 11:11</a></li><li><a href="#2026-11-03T101922Z" data-day="2026-11-03T101922Z">2026-11-03 11:19</a></li><li><a href="#2026-11-02T164450Z" data-day="2026-11-02T164450Z">2026-11-02 17:44</a></li><li><a href="#2026-11-02T155513Z" data-day="2026-11-02T155513Z">2026-11-02 16:55</a></li><li><a href="#2026-11-02T114303Z" data-day="2026-11-02T114303Z">2026-11-02 12:43</a></li><li><a href="#2026-11-02T110402Z" data-day="2026-11-02T110402Z">2026-11-02 12:04</a></li><li><a href="#2026-11-02T101900Z" data-day="2026-11-02T101900Z">2026-11-02 11:19</a></li></ul></nav>
         </aside>
         <main>
             <header>
@@ -513,6 +534,18 @@
                 </figure>
                 <p class="note">Model price is an out-of-fold ElasticNetCV estimate. Listing descriptions are truncated to ~500 characters, so read the full listing before acting.</p>
             </article>
+            <article class="day" id="d-favorites" data-day="favorites" hidden>
+                <section>
+                    <div class="endpoint"><span class="method">GET</span><h2>/favorites</h2><span class="status" id="fav-status"></span></div>
+                    <p class="sub">Starred listings, saved in this browser · asking price now is from the latest scan</p>
+                    <div class="table-wrap"><table id="fav-table">
+                        <thead><tr><th>#</th><th>Address</th><th>Type</th><th>Neighborhood</th><th class="num">m²</th><th class="num">Rooms</th>
+                            <th class="num" title="Asking price when you starred it">Asking then</th><th class="num">Asking now</th>
+                            <th class="num">Estimated Price</th><th class="num">vs. Estimate</th><th>Starred</th><th></th></tr></thead>
+                        <tbody></tbody>
+                    </table></div>
+                </section>
+            </article>
         </main>
     </div>
     <script>
@@ -571,6 +604,118 @@
             if (cls) td.className = cls;
             td.textContent = text;
             return td;
+        }
+
+        function addressCell(r) {
+            const td = document.createElement("td");
+            if (r.url) {
+                const a = document.createElement("a");
+                a.href = r.url;
+                a.target = "_blank";
+                a.rel = "noopener noreferrer";
+                a.textContent = r.address;
+                td.append(a);
+            } else {
+                td.textContent = r.address;
+            }
+            return td;
+        }
+
+        // Favorites live in localStorage, keyed by listing URL, with a snapshot of the
+        // listing so they still show once it drops out of the scans
+        const FAV_KEY = "bolig-favorites";
+        const favId = r => r.url || r.address;
+
+        function readFavorites() {
+            try { return JSON.parse(localStorage.getItem(FAV_KEY)) || {}; } catch { return {}; }
+        }
+        let favorites = readFavorites();
+
+        function saveFavorites() {
+            try { localStorage.setItem(FAV_KEY, JSON.stringify(favorites)); } catch {}
+            const n = Object.keys(favorites).length;
+            document.getElementById("fav-count").textContent = n ? ` (${n})` : "";
+        }
+
+        function star(r) {
+            const b = document.createElement("button");
+            b.type = "button";
+            b.className = "star";
+            b.setAttribute("aria-label", "favorite");
+            const paint = () => {
+                const on = favId(r) in favorites;
+                b.textContent = on ? "★" : "☆";
+                b.classList.toggle("on", on);
+                b.setAttribute("aria-pressed", on);
+                b.title = on ? "remove from favorites" : "add to favorites";
+            };
+            b.onclick = () => {
+                if (favId(r) in favorites) delete favorites[favId(r)];
+                else favorites[favId(r)] = { address: r.address, url: r.url, type: r.type, area: r.area, m2: r.m2, rooms: r.rooms,
+                                             asking: r.asking, model: r.model, saved: Date.now() };
+                saveFavorites();
+                paint();
+            };
+            paint();
+            return b;
+        }
+
+        async function renderFavorites() {
+            // Current prices come from the latest scan; favorites missing from it are sold or withdrawn
+            const article = document.getElementById("d-" + latest);
+            let now = null;
+            if (article.dataset.listings) {
+                try {
+                    await load(article);
+                    now = new Map(article.querySelector("section.results").rows.map(r => [favId(r), r]));
+                } catch {}
+            }
+            const list = Object.entries(favorites).sort((a, b) => b[1].saved - a[1].saved);
+            const tbody = document.querySelector("#fav-table tbody");
+            tbody.replaceChildren();
+            list.forEach(([id, f], i) => {
+                const cur = now && now.get(id);
+                const r = cur || f;
+                const tr = document.createElement("tr");
+                let asking;
+                if (!now) asking = cell("–", "num c");
+                else if (!cur) {
+                    tr.className = "gone";
+                    asking = cell("not listed", "num c");
+                    asking.title = "not in the latest scan: sold, withdrawn or red-flagged";
+                } else {
+                    asking = cell(millions(cur.asking), "num");
+                    if (cur.asking !== f.asking) {
+                        const span = document.createElement("span");
+                        const down = cur.asking < f.asking;
+                        span.className = "since " + (down ? "down" : "up");
+                        span.textContent = (down ? "↓" : "↑") + percent1((cur.asking / f.asking - 1) * 100);
+                        asking.append(span);
+                    }
+                }
+                const discount = r.asking / r.model - 1;
+                const remove = document.createElement("button");
+                remove.type = "button";
+                remove.className = "remove";
+                remove.textContent = "remove";
+                remove.onclick = () => { delete favorites[id]; saveFavorites(); renderFavorites(); };
+                const actions = document.createElement("td");
+                actions.append(remove);
+                tr.append(cell(i + 1, "c"), addressCell(f), cell(f.type, "c"), cell(f.area), cell(f.m2, "num"), cell(f.rooms ?? "–", "num"),
+                    cell(millions(f.asking), "num c"), asking, cell(millions(r.model), "num"),
+                    cell(percent(discount), discount > 0 ? "num r" : "num g"), cell(new Date(f.saved).toISOString().slice(0, 10), "c"), actions);
+                tbody.append(tr);
+            });
+            if (!list.length) {
+                const tr = document.createElement("tr");
+                tr.className = "empty";
+                const td = cell("no favorites yet · star listings with ☆ in a scan");
+                td.colSpan = 12;
+                tr.append(td);
+                tbody.append(tr);
+            }
+            const gone = now ? list.filter(([id]) => !now.has(id)).length : 0;
+            document.getElementById("fav-status").textContent = `${list.length} saved` + (gone ? ` · ${gone} not in the latest scan` : "");
         }
 
         function load(article) {
@@ -680,18 +825,9 @@
             tbody.replaceChildren();
             matches.slice(0, sec.limit).forEach((r, i) => {
                 const tr = document.createElement("tr");
-                const td = document.createElement("td");
-                if (r.url) {
-                    const a = document.createElement("a");
-                    a.href = r.url;
-                    a.target = "_blank";
-                    a.rel = "noopener noreferrer";
-                    a.textContent = r.address;
-                    td.append(a);
-                } else {
-                    td.textContent = r.address;
-                }
-                tr.append(cell(i + 1, "c"), td, cell(r.type, "type c"), cell(r.m2, "num"), cell(r.rooms ?? "–", "num"),
+                const rank = cell(" " + (i + 1), "c");
+                rank.prepend(star(r));
+                tr.append(rank, addressCell(r), cell(r.type, "type c"), cell(r.m2, "num"), cell(r.rooms ?? "–", "num"),
                     cell(millions(r.asking), "num"), cell(r.monthly === null ? "–" : r.monthly.toLocaleString("en"), "num"),
                     cell(millions(r.model), "num"), cell(percent(r.discount), r.discount > 0 ? "num r" : "num g"), changeCell(r, sec.prevRun),
                     ...MODEL_KEYS.map(k => cell(r[k] === null ? "–" : millions(r[k]), "num c model-col model-detail")),
@@ -797,6 +933,7 @@
             const article = document.getElementById("d-" + day);
             current = null;
             form.hidden = !article.dataset.listings;
+            if (day === "favorites") renderFavorites();
             if (form.hidden) return;
             load(article).then(data => {
                 if (!defaultsSet && data.maxPrice) fMax.value = data.maxPrice / 1e6;
@@ -844,6 +981,15 @@
         const fModels = document.getElementById("f-models");
         fModels.addEventListener("change", () => document.body.classList.toggle("show-models", fModels.checked));
         window.addEventListener("hashchange", () => { show(); window.scrollTo(0, 0); });
+        // Keep stars and the favorites list in step with changes made in another tab
+        window.addEventListener("storage", e => {
+            if (e.key !== FAV_KEY) return;
+            favorites = readFavorites();
+            saveFavorites();
+            if (location.hash === "#favorites") renderFavorites();
+            else if (current) renderSection(current.querySelector("section.results"));
+        });
+        saveFavorites();
         show();
     </script>
 </body>
