@@ -379,13 +379,13 @@
                 <button type="button" id="f-reset">reset</button>
             </form>
 
-            <article class="day" id="d-listings" data-day="listings" data-listings="listings.json?v=2026-11-13T202026Z" hidden>
-                <h2 class="day-title">latest scan 2026-11-13 21:20 Copenhagen time · tracking since 2026-11-13 18:32</h2>
+            <article class="day" id="d-listings" data-day="listings" data-listings="listings.json?v=2026-11-13T202730Z" hidden>
+                <h2 class="day-title">latest scan 2026-11-13 21:27 Copenhagen time · tracking since 2026-11-13 18:32</h2>
                 <section class="results">
                     <div class="endpoint"><span class="method">GET</span><h2></h2><span class="status"></span></div>
                     <p class="sub"></p>
                     <div class="table-wrap"><table>
-                        <thead><tr><th>#</th><th data-sort="address"><button type="button" class="sort">Address</button></th><th data-sort="type"><button type="button" class="sort">Type</button></th><th class="num" data-sort="m2"><button type="button" class="sort">m²</button></th><th class="num" data-sort="rooms"><button type="button" class="sort">Rooms</button></th><th class="num" data-sort="asking"><button type="button" class="sort">Asking</button></th><th class="num" data-sort="monthly" title="Ejerudgift: monthly ownership cost, DKK"><button type="button" class="sort">Cost/mo</button></th><th class="num" data-sort="model" title="XGBoost, the most accurate of the four models (out-of-fold)"><button type="button" class="sort">Estimated Price</button></th><th class="num" data-sort="discount" title="Asking price relative to the estimated price; −40% asks 40% less"><button type="button" class="sort">vs. Estimate</button></th><th class="num" data-sort="change" title="Asking-price change since listing; arrow: since the previous scan"><button type="button" class="sort">Price Δ</button></th><th class="num model-col" data-sort="model1" title="modelPrice: ElasticNet hedonic model on log price"><button type="button" class="sort">ElasticNet</button></th><th class="num model-col" data-sort="model2" title="modelPrice2: XGBoost on log price"><button type="button" class="sort">XGBoost</button></th><th class="num model-col" data-sort="model3" title="modelPrice3: area × base rate + bedrooms × β₁ + bathrooms × β₂"><button type="button" class="sort">Size fit</button></th><th class="num model-col" data-sort="model4" title="modelPrice4: β₀ + β₁ floor + β₂ view score + β₃ km to nearest station"><button type="button" class="sort">Location fit</button></th><th class="num model-col" data-sort="average" title="finalModelPrice: average of the four model prices"><button type="button" class="sort">Average</button></th><th class="num prev-col" data-sort="prevSale" title="This unit's most recent ordinary sale (Tinglysning), with its year"><button type="button" class="sort">Last sold</button></th><th class="seen-col" data-sort="lastSeen" title="The last scan that listed it; off-market listings show with the status filter"><button type="button" class="sort">Last seen</button></th></tr></thead>
+                        <thead><tr><th>#</th><th data-sort="address"><button type="button" class="sort">Address</button></th><th data-sort="type"><button type="button" class="sort">Type</button></th><th class="num" data-sort="m2"><button type="button" class="sort">m²</button></th><th class="num" data-sort="rooms"><button type="button" class="sort">Rooms</button></th><th class="num" data-sort="asking"><button type="button" class="sort">Asking</button></th><th class="num" data-sort="monthly" title="Ejerudgift: monthly ownership cost, DKK"><button type="button" class="sort">Cost/mo</button></th><th class="num" data-sort="model" title="XGBoost, the most accurate of the four models (out-of-fold)"><button type="button" class="sort">Estimated Price</button></th><th class="num" data-sort="discount" title="Asking price relative to the estimated price; −40% asks 40% less"><button type="button" class="sort">vs. Estimate</button></th><th class="num" data-sort="change" title="Asking-price change since listing; arrow: since the previous scan"><button type="button" class="sort">Price Δ</button></th><th class="num" data-sort="days" title="Time since the listing went up (Boligsiden), as of the last scan that listed it"><button type="button" class="sort">Listed</button></th><th class="num model-col" data-sort="model1" title="modelPrice: ElasticNet hedonic model on log price"><button type="button" class="sort">ElasticNet</button></th><th class="num model-col" data-sort="model2" title="modelPrice2: XGBoost on log price"><button type="button" class="sort">XGBoost</button></th><th class="num model-col" data-sort="model3" title="modelPrice3: area × base rate + bedrooms × β₁ + bathrooms × β₂"><button type="button" class="sort">Size fit</button></th><th class="num model-col" data-sort="model4" title="modelPrice4: β₀ + β₁ floor + β₂ view score + β₃ km to nearest station"><button type="button" class="sort">Location fit</button></th><th class="num model-col" data-sort="average" title="finalModelPrice: average of the four model prices"><button type="button" class="sort">Average</button></th><th class="num prev-col" data-sort="prevSale" title="This unit's most recent ordinary sale (Tinglysning), with its year"><button type="button" class="sort">Last sold</button></th><th class="seen-col" data-sort="lastSeen" title="The last scan that listed it; off-market listings show with the status filter"><button type="button" class="sort">Last seen</button></th></tr></thead>
                         <tbody></tbody>
                     </table></div>
                     <button type="button" class="more" hidden>show more</button>
@@ -496,7 +496,7 @@
             title.replaceChildren(addressCell({ ...r, isNew: false }).firstChild);
             const status = r.active ? "for sale in the latest scan" : `off market, last seen ${scanDay(r.lastSeen)}`;
             dialog.querySelector(".facts").textContent = [r.type, r.area, `${r.m2} m²`, r.rooms === null ? null : `${r.rooms} rooms`,
-                `first seen ${scanDay(r.firstSeen)}`, status].filter(Boolean).join(" · ");
+                r.days === null ? null : `on market ${onMarket(r.days)}`, `first seen ${scanDay(r.firstSeen)}`, status].filter(Boolean).join(" · ");
             const prices = priceHistory(r);
             const first = prices[0][1];
             const tbody = dialog.querySelector("tbody");
@@ -514,6 +514,9 @@
                 + (r.change ? `Boligsiden reports ${percent1(r.change)} since the listing went up.` : "Boligsiden reports no change since the listing went up.");
             dialog.showModal();
         }
+
+        // Days under a month, whole months after that
+        const onMarket = days => days === null ? "–" : days < 30 ? `${days} d` : `${Math.round(days / 30.4)} mo`;
 
         function cell(text, cls) {
             const td = document.createElement("td");
@@ -665,6 +668,7 @@
                             discount: r[c.asking] / r[c.model] - 1,
                             change: c.change === undefined ? null : r[c.change],
                             prev: c.prev === undefined ? null : r[c.prev],
+                            days: c.days === undefined ? null : r[c.days],
                             prices: c.prices === undefined ? null : r[c.prices],
                             floor: c.floor === undefined ? null : r[c.floor],
                             monthly: c.monthly === undefined ? null : r[c.monthly],
@@ -706,7 +710,7 @@
         }
 
         // First click sorts sizes descending, everything else ascending; again flips it
-        const DESC_FIRST = new Set(["m2", "rooms"]);
+        const DESC_FIRST = new Set(["m2", "rooms", "days"]);
         const TEXT_KEYS = new Set(["address", "type", "lastSeen"]);
         const MODEL_KEYS = ["model1", "model2", "model3", "model4", "average"];
 
@@ -765,7 +769,7 @@
                 rank.prepend(star(r));
                 tr.append(rank, addressCell(r), cell(r.type, "type c"), cell(r.m2, "num"), cell(r.rooms ?? "–", "num"),
                     cell(millions(r.asking), "num"), cell(r.monthly === null ? "–" : r.monthly.toLocaleString("en"), "num"),
-                    cell(millions(r.model), "num"), cell(percent(r.discount), r.discount > 0 ? "num r" : "num g"), changeCell(r),
+                    cell(millions(r.model), "num"), cell(percent(r.discount), r.discount > 0 ? "num r" : "num g"), changeCell(r), cell(onMarket(r.days), "num c"),
                     ...MODEL_KEYS.map(k => cell(r[k] === null ? "–" : millions(r[k]), "num c model-col model-detail")),
                     cell(r.prevSale === null ? "–" : `${millions(r.prevSale)} (${r.prevSaleYear})`, "num c prev-col"),
                     cell(r.active ? "latest scan" : scanDay(r.lastSeen), "c seen-col"));
@@ -775,7 +779,7 @@
                 const tr = document.createElement("tr");
                 tr.className = "empty";
                 const td = cell("no listings match these filters");
-                td.colSpan = 17;
+                td.colSpan = 18;
                 tr.append(td);
                 tbody.append(tr);
             }
