@@ -62,6 +62,29 @@
         .down { color: var(--green); }
         .up { color: var(--red); }
         .since { font-size: 11.5px; font-weight: 700; margin-left: 6px; }
+        .history { all: unset; cursor: pointer; border-bottom: 1px dotted currentColor; }
+        .history:hover { color: var(--text); }
+        .history:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; border-radius: 3px; }
+
+        #price-dialog {
+            width: min(520px, calc(100vw - 32px));
+            padding: 18px 20px;
+            background: var(--panel);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+        #price-dialog::backdrop { background: rgb(0 0 0 / .5); }
+        #price-dialog h3 { margin: 0 28px 4px 0; font-size: 15px; }
+        #price-dialog .facts, #price-dialog .note { margin: 0 0 12px; font-size: 12.5px; }
+        #price-dialog .note { margin: 12px 0 0; }
+        #price-dialog table { width: 100%; }
+        #price-dialog th, #price-dialog td { padding: 8px 10px; }
+        /* Undo the listing table's wide, wrapping address column */
+        #price-dialog td:nth-child(2) { min-width: 0; white-space: nowrap; }
+        #price-dialog .close { all: unset; position: absolute; top: 12px; right: 14px; cursor: pointer; color: var(--muted); padding: 2px 6px; }
+        #price-dialog .close:hover { color: var(--text); }
+        #price-dialog .close:focus-visible { outline: 2px solid var(--green); border-radius: 4px; }
 
         .layout {
             max-width: var(--max);
@@ -357,7 +380,7 @@
             </form>
 
             <article class="day" id="d-listings" data-day="listings" data-listings="listings.json" hidden>
-                <h2 class="day-title">latest scan 2026-11-13 18:32 Copenhagen time · tracking since 2026-11-13 18:32</h2>
+                <h2 class="day-title">latest scan 2026-11-13 21:03 Copenhagen time · tracking since 2026-11-13 18:32</h2>
                 <section class="results">
                     <div class="endpoint"><span class="method">GET</span><h2></h2><span class="status"></span></div>
                     <p class="sub"></p>
@@ -368,7 +391,7 @@
                     <button type="button" class="more" hidden>show more</button>
                 </section>
                 <p class="note">Estimated price is an out-of-fold XGBoost estimate, the most accurate of the four models; vs. Estimate is the asking price relative to it. Listing descriptions are truncated to ~500 characters, so read the full listing before acting.</p>
-                <p class="plots">plots of the latest scan: <a href="valuation.png" target="_blank" rel="noopener" title="Green points ask less than the estimate, red more, ✕ are red-flagged listings that are not ranked">asking vs estimated price</a> · <a href="valuation_by_area.png" target="_blank" rel="noopener" title="The 16 postal areas with most condo listings; central Copenhagen's street-level zip codes are pooled per district">condos by postal area</a></p>
+                <p class="plots">plots of the latest scan: <a href="valuation.png" target="_blank" rel="noopener" title="Green points ask less than the estimate, red more, ✕ are red-flagged listings that are not ranked">asking vs estimated price</a> · <a href="valuation_by_area.png" target="_blank" rel="noopener" title="The 16 postal areas with most condo listings; central Copenhagen's street-level zip codes are pooled per district">condos by postal area</a> · <a href="price_drops.png" target="_blank" rel="noopener" title="Share of listings whose asking price was cut since listing, and the median cut, per postal area and property type">price cuts by postal area</a></p>
             </article>
             <article class="day" id="d-favorites" data-day="favorites" hidden>
                 <section>
@@ -384,6 +407,16 @@
             </article>
         </main>
     </div>
+    <dialog id="price-dialog" aria-labelledby="price-dialog-title">
+        <form method="dialog"><button class="close" aria-label="close">✕</button></form>
+        <h3 id="price-dialog-title"></h3>
+        <p class="facts c"></p>
+        <table>
+            <thead><tr><th>Scan</th><th class="num">Asking</th><th class="num">vs. previous</th><th class="num">vs. first</th></tr></thead>
+            <tbody></tbody>
+        </table>
+        <p class="note c"></p>
+    </dialog>
     <script>
         const latest = "listings";
         const TITLES = {"ejerlejlighed": "Condos (ejerlejlighed)", "villa": "Detached houses (villa)", "raekkehus": "Terraced houses (rækkehus)", "sommerhus": "Holiday houses (sommerhus)"};
@@ -440,7 +473,46 @@
                 td.title = `${millions(r.prev)} → ${millions(r.asking)} in the scan of ${scanDay(r.prevSeen)}`;
                 td.append(span);
             }
+            // The whole cell opens the listing's price history
+            const open = document.createElement("button");
+            open.type = "button";
+            open.className = "history";
+            open.title = td.title + " · click for the price history";
+            open.append(...td.childNodes);
+            open.onclick = () => showPrices(r);
+            td.append(open);
             return td;
+        }
+
+        // Every asking price the scans saw; rows merged before "prices" existed fall back to prev
+        function priceHistory(r) {
+            if (r.prices) return r.prices;
+            return r.prev === null ? [[r.firstSeen, r.asking]] : [[r.firstSeen, r.prev], [r.prevSeen, r.asking]];
+        }
+
+        function showPrices(r) {
+            const dialog = document.getElementById("price-dialog");
+            const title = dialog.querySelector("h3");
+            title.replaceChildren(addressCell({ ...r, isNew: false }).firstChild);
+            const status = r.active ? "for sale in the latest scan" : `off market, last seen ${scanDay(r.lastSeen)}`;
+            dialog.querySelector(".facts").textContent = [r.type, r.area, `${r.m2} m²`, r.rooms === null ? null : `${r.rooms} rooms`,
+                `first seen ${scanDay(r.firstSeen)}`, status].filter(Boolean).join(" · ");
+            const prices = priceHistory(r);
+            const first = prices[0][1];
+            const tbody = dialog.querySelector("tbody");
+            tbody.replaceChildren(...prices.map(([run, price], i) => {
+                const tr = document.createElement("tr");
+                const step = i && prices[i - 1][1] ? (price / prices[i - 1][1] - 1) * 100 : null;
+                const total = i && first ? (price / first - 1) * 100 : null;
+                const delta = v => cell(v === null ? "–" : percent1(v), "num" + (v < 0 ? " down" : v > 0 ? " up" : " c"));
+                tr.append(cell(scanDay(run)), cell(price === null ? "–" : millions(price), "num"), delta(step), delta(total));
+                return tr;
+            }));
+            const changes = prices.length - 1;
+            dialog.querySelector(".note").textContent =
+                (changes ? `${changes} price change${changes > 1 ? "s" : ""} since tracking started. ` : "No price change since tracking started. ")
+                + (r.change ? `Boligsiden reports ${percent1(r.change)} since the listing went up.` : "Boligsiden reports no change since the listing went up.");
+            dialog.showModal();
         }
 
         function cell(text, cls) {
@@ -593,6 +665,7 @@
                             discount: r[c.asking] / r[c.model] - 1,
                             change: c.change === undefined ? null : r[c.change],
                             prev: c.prev === undefined ? null : r[c.prev],
+                            prices: c.prices === undefined ? null : r[c.prices],
                             floor: c.floor === undefined ? null : r[c.floor],
                             monthly: c.monthly === undefined ? null : r[c.monthly],
                             ...Object.fromEntries(MODEL_KEYS.map(k => [k, c[k] === undefined ? null : r[c[k]]])),
@@ -854,6 +927,8 @@
             if (current) { renderAreas(current); refresh(); }
         }
         fStatus.addEventListener("change", applyStatus);
+        // A click on the backdrop (outside the dialog box) closes the price history
+        document.getElementById("price-dialog").addEventListener("click", e => { if (e.target === e.currentTarget) e.currentTarget.close(); });
         window.addEventListener("hashchange", () => { show(); window.scrollTo(0, 0); });
         // Keep stars and the favorites list in step with changes made in another tab
         window.addEventListener("storage", e => {
