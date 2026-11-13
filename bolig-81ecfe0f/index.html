@@ -155,7 +155,7 @@
         /* Runs from before the four-model average have no per-model prices */
         table:not(.models) .model-col { display: none; }
         table:not(.prev) .prev-col { display: none; }
-        /* Last seen only matters once removed listings are shown */
+        /* Last seen only matters once off-market listings are shown */
         body:not(.show-old) .seen-col { display: none; }
         /* The four per-model prices and their average only show with "show models" ticked */
         body:not(.show-models) th[data-sort^="model"]:not([data-sort="model"]),
@@ -343,8 +343,12 @@
                 <label>size ≤ (m²)
                     <input id="f-m2max" type="number" min="0" step="10" inputmode="numeric" placeholder="any" />
                 </label>
-                <label class="check" title="Listings that are no longer in the latest scan: sold, withdrawn or red-flagged. They keep the values from the last scan that listed them">
-                    <input id="f-old" type="checkbox" /> show removed
+                <label title="Off market: no longer in the latest scan (sold, withdrawn or red-flagged), shown with the values from the last scan that listed them">status
+                    <select id="f-status">
+                        <option value="">for sale</option>
+                        <option value="all">for sale + off market</option>
+                        <option value="off">off market only</option>
+                    </select>
                 </label>
                 <label class="check" title="ElasticNet, XGBoost, Size fit and Location fit prices and their average">
                     <input id="f-models" type="checkbox" /> show models
@@ -358,7 +362,7 @@
                     <div class="endpoint"><span class="method">GET</span><h2></h2><span class="status"></span></div>
                     <p class="sub"></p>
                     <div class="table-wrap"><table>
-                        <thead><tr><th>#</th><th data-sort="address"><button type="button" class="sort">Address</button></th><th data-sort="type"><button type="button" class="sort">Type</button></th><th class="num" data-sort="m2"><button type="button" class="sort">m²</button></th><th class="num" data-sort="rooms"><button type="button" class="sort">Rooms</button></th><th class="num" data-sort="asking"><button type="button" class="sort">Asking</button></th><th class="num" data-sort="monthly" title="Ejerudgift: monthly ownership cost, DKK"><button type="button" class="sort">Cost/mo</button></th><th class="num" data-sort="model" title="XGBoost, the most accurate of the four models (out-of-fold)"><button type="button" class="sort">Estimated Price</button></th><th class="num" data-sort="discount" title="Asking price relative to the estimated price; −40% asks 40% less"><button type="button" class="sort">vs. Estimate</button></th><th class="num" data-sort="change" title="Asking-price change since listing; arrow: since the previous scan"><button type="button" class="sort">Price Δ</button></th><th class="num model-col" data-sort="model1" title="modelPrice: ElasticNet hedonic model on log price"><button type="button" class="sort">ElasticNet</button></th><th class="num model-col" data-sort="model2" title="modelPrice2: XGBoost on log price"><button type="button" class="sort">XGBoost</button></th><th class="num model-col" data-sort="model3" title="modelPrice3: area × base rate + bedrooms × β₁ + bathrooms × β₂"><button type="button" class="sort">Size fit</button></th><th class="num model-col" data-sort="model4" title="modelPrice4: β₀ + β₁ floor + β₂ view score + β₃ km to nearest station"><button type="button" class="sort">Location fit</button></th><th class="num model-col" data-sort="average" title="finalModelPrice: average of the four model prices"><button type="button" class="sort">Average</button></th><th class="num prev-col" data-sort="prevSale" title="This unit's most recent ordinary sale (Tinglysning), with its year"><button type="button" class="sort">Last sold</button></th><th class="seen-col" data-sort="lastSeen" title="The last scan that listed it; removed listings show with &quot;show removed&quot; ticked"><button type="button" class="sort">Last seen</button></th></tr></thead>
+                        <thead><tr><th>#</th><th data-sort="address"><button type="button" class="sort">Address</button></th><th data-sort="type"><button type="button" class="sort">Type</button></th><th class="num" data-sort="m2"><button type="button" class="sort">m²</button></th><th class="num" data-sort="rooms"><button type="button" class="sort">Rooms</button></th><th class="num" data-sort="asking"><button type="button" class="sort">Asking</button></th><th class="num" data-sort="monthly" title="Ejerudgift: monthly ownership cost, DKK"><button type="button" class="sort">Cost/mo</button></th><th class="num" data-sort="model" title="XGBoost, the most accurate of the four models (out-of-fold)"><button type="button" class="sort">Estimated Price</button></th><th class="num" data-sort="discount" title="Asking price relative to the estimated price; −40% asks 40% less"><button type="button" class="sort">vs. Estimate</button></th><th class="num" data-sort="change" title="Asking-price change since listing; arrow: since the previous scan"><button type="button" class="sort">Price Δ</button></th><th class="num model-col" data-sort="model1" title="modelPrice: ElasticNet hedonic model on log price"><button type="button" class="sort">ElasticNet</button></th><th class="num model-col" data-sort="model2" title="modelPrice2: XGBoost on log price"><button type="button" class="sort">XGBoost</button></th><th class="num model-col" data-sort="model3" title="modelPrice3: area × base rate + bedrooms × β₁ + bathrooms × β₂"><button type="button" class="sort">Size fit</button></th><th class="num model-col" data-sort="model4" title="modelPrice4: β₀ + β₁ floor + β₂ view score + β₃ km to nearest station"><button type="button" class="sort">Location fit</button></th><th class="num model-col" data-sort="average" title="finalModelPrice: average of the four model prices"><button type="button" class="sort">Average</button></th><th class="num prev-col" data-sort="prevSale" title="This unit's most recent ordinary sale (Tinglysning), with its year"><button type="button" class="sort">Last sold</button></th><th class="seen-col" data-sort="lastSeen" title="The last scan that listed it; off-market listings show with the status filter"><button type="button" class="sort">Last seen</button></th></tr></thead>
                         <tbody></tbody>
                     </table></div>
                     <button type="button" class="more" hidden>show more</button>
@@ -397,7 +401,7 @@
         const fFloorMin = document.getElementById("f-floormin");
         const fFloorMax = document.getElementById("f-floormax");
         const fCost = document.getElementById("f-cost");
-        const fOld = document.getElementById("f-old");
+        const fStatus = document.getElementById("f-status");
         const areaSummary = fArea.querySelector("summary");
         const areaSearch = fArea.querySelector("input[type=search]");
         const areaOptions = fArea.querySelector(".options");
@@ -421,8 +425,9 @@
         // Scan timestamps look like 2026-11-14T030512Z
         const scanTime = run => Date.parse(run.replace(/(\d\d)(\d\d)(\d\d)Z$/, "$1:$2:$3Z"));
         const scanDay = run => run ? run.slice(0, 10) : "–";
-        // Removed listings only show with "show removed" ticked
-        const visible = r => r.active || fOld.checked;
+        // The status filter: for sale (in the latest scan), off market, or both
+        const visible = r => fStatus.value === "all" || (fStatus.value === "off" ? !r.active : r.active);
+        const STATUS_NOUN = { "": "for-sale listings", all: "listings", off: "off-market listings" };
 
         function changeCell(r) {
             const td = cell(r.change ? percent1(r.change) : "–", "num" + (r.change < 0 ? " down" : r.change > 0 ? " up" : " c"));
@@ -709,9 +714,9 @@
             sec.querySelector(".sub").textContent = (f.type ? TITLES[f.type] || f.type : "All property types")
                 + ` · ${total} listings, ${flagged} red-flagged listings excluded`;
             const shown = Math.min(sec.limit, matches.length);
-            const removed = sec.rows.filter(r => !r.active && (!f.type || r.type === f.type)).length;
-            sec.querySelector(".status").textContent = `${matches.length} of ${ofType.length} ${fOld.checked ? "listings" : "active listings"} match · showing ${shown}`
-                + (removed ? ` · ${removed} removed${fOld.checked ? "" : " hidden"}` : "");
+            const offMarket = sec.rows.filter(r => !r.active && (!f.type || r.type === f.type)).length;
+            sec.querySelector(".status").textContent = `${matches.length} of ${ofType.length} ${STATUS_NOUN[fStatus.value]} match · showing ${shown}`
+                + (offMarket && !fStatus.value ? ` · ${offMarket} off market hidden` : "");
             const more = sec.querySelector(".more");
             more.hidden = shown >= matches.length;
             more.textContent = `show more (${matches.length - shown} left)`;
@@ -836,16 +841,19 @@
             inputs.forEach(input => input.value = "");
             chosenAreas.clear();
             areaSearch.value = "";
+            fStatus.value = "";
+            document.body.classList.remove("show-old");
             if (current) fType.value = current.types.includes(DEFAULT_TYPE) ? DEFAULT_TYPE : current.types[0];
             if (current) renderAreas(current);
             refresh();
         });
         const fModels = document.getElementById("f-models");
         fModels.addEventListener("change", () => document.body.classList.toggle("show-models", fModels.checked));
-        fOld.addEventListener("change", () => {
-            document.body.classList.toggle("show-old", fOld.checked);
+        function applyStatus() {
+            document.body.classList.toggle("show-old", fStatus.value !== "");
             if (current) { renderAreas(current); refresh(); }
-        });
+        }
+        fStatus.addEventListener("change", applyStatus);
         window.addEventListener("hashchange", () => { show(); window.scrollTo(0, 0); });
         // Keep stars and the favorites list in step with changes made in another tab
         window.addEventListener("storage", e => {
