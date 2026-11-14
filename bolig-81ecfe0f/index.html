@@ -336,14 +336,7 @@
                     <input id="f-max" type="number" min="0" step="0.5" inputmode="decimal" placeholder="any" />
                 </label>
                 <label>price change
-                    <select id="f-change">
-                        <option value="">any</option>
-                        <option value="down">reduced since listing</option>
-                        <option value="up">raised since listing</option>
-                        <option value="none">never changed</option>
-                        <option value="down-scan">reduced since last scan</option>
-                        <option value="up-scan">raised since last scan</option>
-                    </select>
+                    <select id="f-change"></select>
                 </label>
                 <label>rooms ≥
                     <select id="f-rooms">
@@ -366,12 +359,8 @@
                 <label>size ≤ (m²)
                     <input id="f-m2max" type="number" min="0" step="10" inputmode="numeric" placeholder="any" />
                 </label>
-                <label title="Off market: no longer in the latest scan (sold, withdrawn or red-flagged), shown with the values from the last scan that listed them">status
-                    <select id="f-status">
-                        <option value="">for sale</option>
-                        <option value="all">for sale + off market</option>
-                        <option value="off">off market only</option>
-                    </select>
+                <label title="New: first seen in the last week. Off market: no longer in the latest scan (sold, withdrawn or red-flagged), shown with the values from the last scan that listed them">status
+                    <select id="f-status"></select>
                 </label>
                 <label class="check" title="ElasticNet, XGBoost, Size fit and Location fit prices and their average">
                     <input id="f-models" type="checkbox" /> show models
@@ -448,19 +437,27 @@
         const millions = v => (v / 1e6).toFixed(2) + "M";
         const percent = v => (v < 0 ? "−" : "+") + Math.abs(Math.round(v * 100)) + "%";
         const percent1 = v => (v < 0 ? "−" : "+") + Math.abs(v).toFixed(1) + "%";
+        // Filter dropdowns are built from these tables; the "" key is the default option
         const CHANGE = {
-            down: r => r.change < 0,
-            up: r => r.change > 0,
-            none: r => !r.change,
-            "down-scan": r => r.changedNow && r.asking < r.prev,
-            "up-scan": r => r.changedNow && r.asking > r.prev,
+            "": { label: "any", test: () => true },
+            down: { label: "reduced", test: r => r.change < 0 },
+            up: { label: "raised", test: r => r.change > 0 },
+            none: { label: "unchanged", test: r => !r.change },
         };
+        // Active: in the latest scan. Off market: sold, withdrawn or red-flagged since
+        const STATUS = {
+            "": { label: "for sale", noun: "for-sale listings", test: r => r.active },
+            new: { label: `new (last ${NEW_DAYS} days)`, noun: "new listings", test: r => r.active && r.isNew },
+            off: { label: "off market", noun: "off-market listings", test: r => !r.active, old: true },
+            all: { label: "everything", noun: "listings", test: () => true, old: true },
+        };
+        const fillSelect = (select, table) => Object.entries(table).forEach(([v, o]) => select.append(new Option(o.label, v)));
+        fillSelect(fChange, CHANGE);
+        fillSelect(fStatus, STATUS);
         // Scan timestamps look like 2026-11-14T030512Z
         const scanTime = run => Date.parse(run.replace(/(\d\d)(\d\d)(\d\d)Z$/, "$1:$2:$3Z"));
         const scanDay = run => run ? run.slice(0, 10) : "–";
-        // The status filter: for sale (in the latest scan), off market, or both
-        const visible = r => fStatus.value === "all" || (fStatus.value === "off" ? !r.active : r.active);
-        const STATUS_NOUN = { "": "for-sale listings", all: "listings", off: "off-market listings" };
+        const visible = r => STATUS[fStatus.value].test(r);
 
         function changeCell(r) {
             const td = cell(r.change ? percent1(r.change) : "–", "num" + (r.change < 0 ? " down" : r.change > 0 ? " up" : " c"));
@@ -677,7 +674,6 @@
                             prevSaleYear: c.prevSaleYear === undefined ? null : r[c.prevSaleYear],
                             firstSeen: r[c.firstSeen], lastSeen: r[c.lastSeen], prevSeen: r[c.prevSeen],
                             active: r[c.lastSeen] === data.scan,
-                            changedNow: r[c.prev] !== null && r[c.prevSeen] === data.scan,
                             // Everything from the first scan is the starting point, not new
                             isNew: r[c.firstSeen] !== data.firstScan && scanTime(r[c.firstSeen]) > newSince,
                         })));
@@ -685,7 +681,6 @@
                         sec.querySelector("table").classList.toggle("models", article.columns.has("model1"));
                         sec.rows.sort((a, b) => a.discount - b.discount);
                         sec.limit = PAGE;
-                        sec.prevRun = data.prevRun;
                         sec.sort = { key: "discount", dir: 1 };
                         sec.querySelector('th[data-sort="discount"]').setAttribute("aria-sort", "ascending");
                         sec.querySelectorAll("th[data-sort] .sort").forEach(b => b.onclick = () => sortBy(sec, b.parentNode.dataset.sort));
@@ -756,7 +751,7 @@
                 && r.asking >= f.min && r.asking <= f.max
                 && (f.rooms === -Infinity || r.rooms >= f.rooms)
                 && r.m2 >= f.m2min && r.m2 <= f.m2max
-                && (!f.change || CHANGE[f.change](r))
+                && CHANGE[f.change].test(r)
                 && (f.floorMin === null || (r.floor !== null && r.floor >= f.floorMin))
                 && (f.floorMax === null || (r.floor !== null && r.floor <= f.floorMax))
                 && (f.cost === Infinity || (r.monthly !== null && r.monthly <= f.cost)));
@@ -792,7 +787,7 @@
                 + ` · ${total} listings, ${flagged} red-flagged listings excluded`;
             const shown = Math.min(sec.limit, matches.length);
             const offMarket = sec.rows.filter(r => !r.active && (!f.type || r.type === f.type)).length;
-            sec.querySelector(".status").textContent = `${matches.length} of ${ofType.length} ${STATUS_NOUN[fStatus.value]} match · showing ${shown}`
+            sec.querySelector(".status").textContent = `${matches.length} of ${ofType.length} ${STATUS[fStatus.value].noun} match · showing ${shown}`
                 + (offMarket && !fStatus.value ? ` · ${offMarket} off market hidden` : "");
             const more = sec.querySelector(".more");
             more.hidden = shown >= matches.length;
@@ -850,12 +845,6 @@
                 input.disabled = !article.columns.has(column);
                 input.parentNode.classList.toggle("off", input.disabled);
             }
-            for (const opt of fChange.options) {
-                if (!opt.value.endsWith("-scan")) continue;
-                opt.disabled = !sec.prevRun;
-                opt.textContent = opt.textContent.replace(/ \(.*\)$/, "") + (sec.prevRun ? ` (${sec.prevRun})` : "");
-            }
-            if (fChange.selectedOptions[0].disabled) fChange.value = "";
             renderSection(sec);
         }
 
@@ -927,7 +916,7 @@
         const fModels = document.getElementById("f-models");
         fModels.addEventListener("change", () => document.body.classList.toggle("show-models", fModels.checked));
         function applyStatus() {
-            document.body.classList.toggle("show-old", fStatus.value !== "");
+            document.body.classList.toggle("show-old", !!STATUS[fStatus.value].old);
             if (current) { renderAreas(current); refresh(); }
         }
         fStatus.addEventListener("change", applyStatus);
